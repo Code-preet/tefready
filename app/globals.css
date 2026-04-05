@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-outfit: 'Outfit', sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-jakarta);
+  background: #FFFEF5;
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-outfit);
+}
+
+/* Remove default link underlines inside nav */
+nav a { text-decoration: none; }
+
+/* Focus ring */
+button:focus-visible, a:focus-visible {
+  outline: 2px solid #0A2540;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+/* Page wrapper */
+.page-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 6rem;
+  width: 100%;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(10,37,64,0.06);
+}
+
+/* Module color helpers */
+.mod-a1  { color: #7C3AED; }
+.mod-a2  { color: #0D9488; }
+.mod-b1  { color: #D97706; }
+.mod-b2  { color: #DC2626; }
+.mod-tef { color: #BE185D; }
+
+.bg-mod-a1  { background: #F5F3FF; }
+.bg-mod-a2  { background: #F0FDFA; }
+.bg-mod-b1  { background: #FFFBEB; }
+.bg-mod-b2  { background: #FEF2F2; }
+.bg-mod-tef { background: #FDF2F8; }
+
+/* Animations */
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes popIn   { 0% { transform: scale(0.9); opacity: 0; } 60% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }
+
+.animate-fade-in  { animation: fadeIn 0.25s ease-out; }
+.animate-slide-up { animation: slideUp 0.3s ease-out; }
+.animate-pop-in   { animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+
+/* Mobile bottom padding */
+@media (max-width: 768px) {
+  .page-content { padding-bottom: 5.5rem; }
+}
