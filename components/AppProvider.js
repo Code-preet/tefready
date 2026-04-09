@@ -44,7 +44,8 @@ export function AppProvider({ children }) {
   const xpInLevel = xp % 100;
   const completedCount = Object.keys(state.completed || {}).length;
 
-  return (
+if (!loaded) return null;
+return (
     <AppContext.Provider value={{ state, addXP, markComplete, setLang, reset, loaded, level, xpInLevel, completedCount }}>
       {children}
     </AppContext.Provider>
