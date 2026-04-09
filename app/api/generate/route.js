@@ -1,83 +1,55 @@
-import { NextResponse } from 'next/server';
+import Anthropic from '@anthropic-ai/sdk'
 
-export async function POST(request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: 'ANTHROPIC_API_KEY not set in environment variables.' }, { status: 500 });
-  }
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY
+})
 
-  let body;
-  try { body = await request.json(); } catch { body = {}; }
-  const { level = 'A1', completedCount = 0, lang = 'en' } = body;
-
-  const prompt = `You are a professional French language teacher specializing in TEF Canada exam preparation for immigrants. Generate a practical daily French lesson.
-
-Student level: ${level}
-Lessons completed so far: ${completedCount}
-Student's native language context: ${lang}
-
-Return ONLY a valid JSON object. No markdown, no code blocks, no backticks, no preamble. The JSON must be on a single line or well-formatted but NOT wrapped in \`\`\`json.
-
-{
-  "title": "short lesson title in English",
-  "topic": "one sentence describing what this lesson covers",
-  "concept": "2-3 clear, practical sentences explaining the grammar or vocabulary concept. Keep it simple and relatable for immigrants. Reference Canadian daily life.",
-  "vocabulary": [
-    {
-      "french": "the French word or phrase",
-      "phonetic": "English phonetic pronunciation guide",
-      "english": "English meaning",
-      "example": "A simple complete French sentence using this word"
-    }
-  ],
-  "exercises": [
-    {
-      "question": "question in English",
-      "options": ["option A", "option B", "option C", "option D"],
-      "answer": 0
-    }
-  ],
-  "tip": "One practical tip specifically about using this French in Canada (Quebec, Ottawa, or bilingual workplaces). Mention real Canadian context."
-}
-
-Requirements:
-- Exactly 5 vocabulary items
-- Exactly 4 multiple choice exercises  
-- Make it practical for Canadian immigrant life (healthcare, banking, work, school, transit)
-- The tip must be specific to Canada, not generic French advice`;
-
+export async function POST(req) {
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
+    const { lang, level, xp, completedLessons } = await req.json()
 
-    if (!response.ok) {
-      const err = await response.text();
-      console.error('Anthropic API error:', err);
-      return NextResponse.json({ error: 'Anthropic API error' }, { status: 500 });
-    }
+    const levelLabel = xp < 100 ? 'absolute beginner A1' :
+      xp < 300 ? 'beginner A1-A2' :
+      xp < 600 ? 'elementary A2' :
+      xp < 1000 ? 'intermediate B1' :
+      xp < 1500 ? 'upper intermediate B2' : 'advanced B2-C1'
 
-    const data = await response.json();
-    const text = data.content
-      .map(c => (c.type === 'text' ? c.text : ''))
-      .join('')
-      .replace(/```json|```/g, '')
-      .trim();
+    const weakAreas = completedLessons?.length < 3 ? 'greetings, numbers, basic vocabulary' :
+      completedLessons?.length < 6 ? 'verbs, sentence structure, time expressions' :
+      'complex grammar, TEF exam strategies, advanced vocabulary'
 
-    const lesson = JSON.parse(text);
-    return NextResponse.json(lesson);
-  } catch (e) {
-    console.error('Generate lesson error:', e);
-    return NextResponse.json({ error: 'Failed to generate lesson: ' + e.message }, { status: 500 });
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      messages: [{
+        role: 'user',
+        content: `You are a professional French language teacher creating a daily homework assignment for a TEF Canada student.
+
+Student level: ${levelLabel}
+XP points: ${xp}
+Completed lessons: ${completedLessons?.join(', ') || 'none yet'}
+Weak areas to focus on: ${weakAreas}
+Interface language: ${lang || 'en'}
+
+Create an engaging, structured daily French homework assignment. Include:
+1. A warm-up vocabulary exercise (5 words with translations)
+2. A grammar focus point with explanation and 3 examples
+3. A practice exercise (fill in blanks or translate sentences)
+4. A speaking prompt (describe something in French)
+5. A cultural tip about French Canada
+
+Format it clearly with emojis and sections. Make it appropriate for ${levelLabel} level. Keep it encouraging and motivating. Total length should be comprehensive but not overwhelming - about 400-500 words.`
+      }]
+    })
+
+    const lesson = message.content[0].text
+
+    return Response.json({ lesson })
+  } catch (err) {
+    console.error('Generate error:', err)
+    return Response.json({ 
+      error: 'Failed to generate lesson',
+      details: err.message 
+    }, { status: 500 })
   }
 }

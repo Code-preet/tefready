@@ -18,7 +18,7 @@ export default function LoginPage() {
     setLoading(true)
 
     const { error: authError } = await supabase.auth.signInWithPassword({
-      email: form.email,
+      email: form.email.toLowerCase().trim(),
       password: form.password
     })
 
@@ -29,6 +29,7 @@ export default function LoginPage() {
 
     setLoading(false)
     router.push('/')
+    router.refresh()
   }
 
   return (
@@ -55,13 +56,13 @@ export default function LoginPage() {
             Welcome back
           </h1>
           <p style={{ color: '#718096', fontSize: '0.9rem', marginTop: '0.4rem' }}>
-            Sign in to continue your progress
+            Sign in to continue your French journey
           </p>
         </div>
 
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {[
-            { label: 'Email address', name: 'email', type: 'email', placeholder: 'you@email.com' },
+            { label: 'Email address', name: 'email', type: 'email', placeholder: 'john@example.com' },
             { label: 'Password', name: 'password', type: 'password', placeholder: 'Your password' },
           ].map(f => (
             <div key={f.name}>
@@ -106,6 +107,12 @@ export default function LoginPage() {
             Sign up free
           </Link>
         </p>
+
+        <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#F7F9FC', borderRadius: '0.75rem', textAlign: 'center' }}>
+          <p style={{ color: '#718096', fontSize: '0.8rem', margin: 0 }}>
+            🔒 Your progress, XP, and streak are saved to your account
+          </p>
+        </div>
       </div>
     </div>
   )

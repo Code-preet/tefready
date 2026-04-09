@@ -33,7 +33,7 @@ export default function SignupPage() {
     }
 
     const { data, error: authError } = await supabase.auth.signUp({
-      email: form.email,
+      email: form.email.toLowerCase().trim(),
       password: form.password,
       options: { data: { username: form.username } }
     })
@@ -47,7 +47,7 @@ export default function SignupPage() {
       await supabase.from('profiles').insert({
         id: data.user.id,
         username: form.username,
-        email: form.email,
+        email: form.email.toLowerCase().trim(),
       })
 
       await fetch('/api/welcome', {
@@ -74,17 +74,16 @@ export default function SignupPage() {
       }}>
         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
         <h2 style={{ color: '#0A2540', fontFamily: "'Outfit', sans-serif", fontSize: '1.7rem', marginBottom: '0.75rem' }}>
-          Welcome to TEFReady!
+          Account Created!
         </h2>
         <p style={{ color: '#4a5568', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-          We've sent a confirmation email to <strong>{form.email}</strong>.<br />
-          Check your inbox and click the link to activate your account.
+          Your account is ready. You can now sign in and start learning French!
         </p>
         <Link href="/auth/login" style={{
           display: 'inline-block', background: '#E8A020', color: 'white',
           padding: '0.85rem 2rem', borderRadius: '0.75rem', fontWeight: 700,
           textDecoration: 'none', fontSize: '1rem'
-        }}>Go to Login →</Link>
+        }}>Sign In Now →</Link>
       </div>
     </div>
   )
@@ -113,14 +112,26 @@ export default function SignupPage() {
             Create your account
           </h1>
           <p style={{ color: '#718096', fontSize: '0.9rem', marginTop: '0.4rem' }}>
-            Start your TEF Canada journey today
+            Track your progress and save your work across all devices
           </p>
+        </div>
+
+        {/* Benefits */}
+        <div style={{ background: '#F0FDF4', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem', border: '1px solid #86EFAC' }}>
+          {[
+            '📊 Track your XP and streak',
+            '💾 Save completed lessons',
+            '🎯 Get personalized homework',
+            '📈 Monitor your TEF progress'
+          ].map((b, i) => (
+            <div key={i} style={{ color: '#065F46', fontSize: '0.85rem', padding: '0.2rem 0' }}>{b}</div>
+          ))}
         </div>
 
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {[
-            { label: 'Username', name: 'username', type: 'text', placeholder: 'e.g. preet_learns' },
-            { label: 'Email address', name: 'email', type: 'email', placeholder: 'you@email.com' },
+            { label: 'Username', name: 'username', type: 'text', placeholder: 'John Doe' },
+            { label: 'Email address', name: 'email', type: 'email', placeholder: 'john@example.com' },
             { label: 'Password', name: 'password', type: 'password', placeholder: 'Minimum 6 characters' },
             { label: 'Confirm password', name: 'confirm', type: 'password', placeholder: 'Repeat your password' },
           ].map(f => (
