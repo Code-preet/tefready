@@ -14,6 +14,7 @@ function speak(text) {
 
 export default function DailyPage() {
   const { state, addXP, completedCount } = useApp();
+if (!state) return null;
   const lang = state.lang || 'en';
   const dt = T[lang]?.daily || T.en.daily;
   const navT = T[lang]?.nav || T.en.nav;

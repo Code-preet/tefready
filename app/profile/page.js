@@ -10,6 +10,7 @@ const MODULE_COLORS = { A1:'#7C3AED', A2:'#0D9488', B1:'#D97706', B2:'#DC2626', 
 
 export default function ProfilePage() {
   const { state, reset, level, xpInLevel, completedCount } = useApp();
+if (!state) return null;
   const lang = state.lang || 'en';
   const pt = T[lang]?.profile || T.en.profile;
   const navT = T[lang]?.nav || T.en.nav;

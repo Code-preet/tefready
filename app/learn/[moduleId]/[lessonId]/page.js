@@ -168,6 +168,7 @@ export default function LessonPage() {
   const { moduleId, lessonId } = useParams();
   const router = useRouter();
   const { state, addXP, markComplete } = useApp();
+if (!state) return null;
   const lang = state?.lang || 'en';
   const lt = T[lang]?.lesson || T.en.lesson;
 
