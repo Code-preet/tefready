@@ -11,7 +11,7 @@ const MODULE_BGS    = { A1:'#F5F3FF', A2:'#F0FDFA', B1:'#FFFBEB', B2:'#FEF2F2', 
 
 export default function HomePage() {
   const { state, level, xpInLevel, completedCount } = useApp();
-  const lang = state.lang || 'en';
+  const lang = state?.lang || 'en';
   const ht = T[lang]?.home || T.en.home;
   const navT = T[lang]?.nav || T.en.nav;
 

@@ -13,7 +13,7 @@ const MODULE_BGS    = { A1:'#F5F3FF', A2:'#F0FDFA', B1:'#FFFBEB', B2:'#FEF2F2', 
 export default function ModulePage() {
   const { moduleId } = useParams();
   const { state } = useApp();
-  const lang = state.lang || 'en';
+  const lang = state?.lang || 'en';
   const lt = T[lang]?.lesson || T.en.lesson;
   const navT = T[lang]?.nav || T.en.nav;
 

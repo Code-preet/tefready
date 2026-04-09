@@ -11,7 +11,7 @@ const MODULE_BGS    = { A1:'#F5F3FF', A2:'#F0FDFA', B1:'#FFFBEB', B2:'#FEF2F2', 
 
 export default function LearnPage() {
   const { state } = useApp();
-  const lang = state.lang || 'en';
+  const lang = state?.lang || 'en';
   const lt = T[lang]?.learn || T.en.learn;
   const navT = T[lang]?.nav || T.en.nav;
 

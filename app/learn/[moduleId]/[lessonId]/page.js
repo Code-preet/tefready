@@ -168,7 +168,7 @@ export default function LessonPage() {
   const { moduleId, lessonId } = useParams();
   const router = useRouter();
   const { state, addXP, markComplete } = useApp();
-  const lang = state.lang || 'en';
+  const lang = state?.lang || 'en';
   const lt = T[lang]?.lesson || T.en.lesson;
 
   // ALL hooks must be called before any conditional returns (React rules)
