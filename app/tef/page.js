@@ -1,266 +1,217 @@
-'use client';
-import { useState } from 'react';
-import Nav from '../../components/Nav';
-import { useApp } from '../../components/AppProvider';
-import { T } from '../../lib/i18n';
-import { TEF_SECTIONS } from '../../lib/data';
+'use client'
+import Link from 'next/link'
+import { useApp } from '../../components/AppProvider'
 
-const SECTION_COLORS  = { reading:'#2563EB', writing:'#7C3AED', listening:'#059669', speaking:'#D97706' };
-const SECTION_BGS     = { reading:'#EFF6FF', writing:'#F5F3FF', listening:'#ECFDF5', speaking:'#FFFBEB' };
+export default function TEFPage() {
+  const { state } = useApp()
+  const lang = state?.lang || 'en'
 
-// ── Reading Section ──────────────────────────────────────────────────────────
-function ReadingSection({ section, lang, tt, addXP, onBack }) {
-  const [step, setStep] = useState('read'); // read | quiz | done
-  const [answers, setAnswers] = useState({});
-  const [score, setScore] = useState(0);
-  const color = SECTION_COLORS.reading;
+  const sections = [
+    {
+      id: 'reading',
+      icon: '📖',
+      color: '#0D9488',
+      title: 'Compréhension de l\'écrit',
+      subtitle: 'Reading Comprehension',
+      desc: 'Master TEF reading with authentic texts, strategies and timed practice.',
+      time: '50 min',
+      questions: '3 texts',
+      clb: 'CLB 5–12',
+      href: '/learn/TEF',
+      lessons: ['tef-1']
+    },
+    {
+      id: 'writing',
+      icon: '✍️',
+      color: '#7C3AED',
+      title: 'Expression écrite',
+      subtitle: 'Written Expression',
+      desc: 'Learn formal letter writing, essay structure and TEF scoring criteria.',
+      time: '60 min',
+      questions: '2 tasks',
+      clb: 'CLB 5–12',
+      href: '/learn/TEF',
+      lessons: ['tef-2']
+    },
+    {
+      id: 'listening',
+      icon: '🎧',
+      color: '#BE185D',
+      title: 'Compréhension de l\'oral',
+      subtitle: 'Listening Comprehension',
+      desc: 'Full 40-minute listening simulation with authentic French audio.',
+      time: '40 min',
+      questions: '13 questions',
+      clb: 'CLB 5–12',
+      href: '/listen',
+      lessons: ['tef-3']
+    },
+    {
+      id: 'speaking',
+      icon: '🎤',
+      color: '#D97706',
+      title: 'Expression orale',
+      subtitle: 'Speaking Expression',
+      desc: 'Record your responses and get instant AI feedback on your French.',
+      time: '15 min',
+      questions: '3 tasks',
+      clb: 'CLB 5–12',
+      href: '/speak',
+      lessons: ['tef-4']
+    },
+  ]
 
-  if (step === 'done') {
-    return (
-      <div className="text-center py-12 animate-pop-in">
-        <div className="text-5xl mb-4">📖</div>
-        <h2 className="font-display font-bold text-navy text-xl mb-2">{tt.sectionDone}</h2>
-        <p className="text-slate-500 font-body mb-2">{tt.score}: {score}/{section.questions.length}</p>
-        <p className="text-green-700 font-semibold font-body mb-6">+40 XP earned</p>
-        <button onClick={() => { addXP(40); onBack(); }}
-          className="bg-navy text-white rounded-2xl px-8 py-3.5 font-display font-bold text-sm hover:opacity-90 transition-opacity">
-          ← Back to TEF Prep
-        </button>
-      </div>
-    );
-  }
+  const clbLevels = [
+    { clb: 'CLB 4–5', tef: '181–225', description: 'Basic communication', color: '#DC2626' },
+    { clb: 'CLB 6', tef: '226–270', description: 'Intermediate communication', color: '#D97706' },
+    { clb: 'CLB 7', tef: '271–315', description: 'Immigration requirement ✅', color: '#059669' },
+    { clb: 'CLB 8', tef: '316–360', description: 'Strong proficiency', color: '#0D9488' },
+    { clb: 'CLB 9+', tef: '361–450', description: 'Near-native proficiency', color: '#7C3AED' },
+  ]
 
   return (
-    <div>
-      {step === 'read' && (
-        <div className="animate-fade-in">
-          <div className="card p-5 mb-5">
-            <div className="text-xs font-semibold uppercase tracking-widest font-body mb-3" style={{ color }}>
-              {tt.reading}
-            </div>
-            <p className="text-sm text-slate-700 font-body leading-loose">{section.passage}</p>
+    <div style={{ minHeight: '100vh', background: '#FFFEF5', fontFamily: "'Plus Jakarta Sans', sans-serif", padding: '2rem 1rem 6rem' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+
+        {/* Header */}
+        <div style={{
+          background: 'linear-gradient(135deg, #0A2540 0%, #1a3a5c 100%)',
+          borderRadius: '1.5rem', padding: '2.5rem', marginBottom: '2rem', color: 'white'
+        }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🏆</div>
+          <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '2rem', margin: '0 0 0.5rem', fontWeight: 800 }}>
+            TEF Canada Prep
+          </h1>
+          <p style={{ color: '#94A3B8', margin: '0 0 1.5rem', lineHeight: 1.6 }}>
+            Complete preparation for all 4 TEF Canada exam sections. Target CLB 7+ for immigration.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            {[
+              { icon: '📋', label: '4 exam sections' },
+              { icon: '⏱️', label: '~3 hours total' },
+              { icon: '🎯', label: 'CLB 7+ target' },
+              { icon: '🤖', label: 'AI feedback' },
+            ].map(item => (
+              <div key={item.label} style={{
+                background: 'rgba(255,255,255,0.1)', borderRadius: '0.5rem',
+                padding: '0.5rem 1rem', fontSize: '0.85rem',
+                display: 'flex', alignItems: 'center', gap: '0.4rem'
+              }}>
+                {item.icon} {item.label}
+              </div>
+            ))}
           </div>
-          <button onClick={() => setStep('quiz')}
-            className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 shadow-lift"
-            style={{ background: color }}>
-            {tt.answerQs}
-          </button>
         </div>
-      )}
-      {step === 'quiz' && (
-        <div className="animate-fade-in">
-          {section.questions.map((q, i) => (
-            <div key={i} className="card p-5 mb-3">
-              <p className="font-display font-semibold text-navy text-sm mb-4">Q{i + 1}: {q.q[lang] || q.q.en}</p>
-              <div className="space-y-2">
-                {q.opts.map((opt, j) => (
-                  <button key={j} onClick={() => setAnswers(a => ({ ...a, [i]: j }))}
-                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-body transition-all border-2 ${
-                      answers[i] === j
-                        ? 'font-semibold'
-                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-                    }`}
-                    style={answers[i] === j ? { borderColor: color, background: color + '12', color } : {}}>
-                    {opt}
-                  </button>
+
+        {/* 4 Sections */}
+        <h2 style={{ color: '#0A2540', fontFamily: "'Outfit', sans-serif", fontSize: '1.2rem', margin: '0 0 1rem', fontWeight: 700 }}>
+          The 4 TEF Canada Sections
+        </h2>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+          {sections.map(section => (
+            <div key={section.id} style={{
+              background: 'white', borderRadius: '1.25rem', padding: '1.5rem',
+              border: '1.5px solid #E8F0FB', display: 'flex', flexDirection: 'column', gap: '1rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                <div style={{
+                  background: section.color, borderRadius: '0.75rem',
+                  width: '48px', height: '48px', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.5rem', flexShrink: 0
+                }}>{section.icon}</div>
+                <div>
+                  <h3 style={{ color: '#0A2540', fontFamily: "'Outfit', sans-serif", fontSize: '1rem', margin: '0 0 0.2rem', fontWeight: 700 }}>
+                    {section.title}
+                  </h3>
+                  <p style={{ color: '#718096', fontSize: '0.8rem', margin: 0 }}>{section.subtitle}</p>
+                </div>
+              </div>
+
+              <p style={{ color: '#4A5568', fontSize: '0.875rem', margin: 0, lineHeight: 1.6 }}>
+                {section.desc}
+              </p>
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {[section.time, section.questions, section.clb].map(tag => (
+                  <span key={tag} style={{
+                    background: '#F1F5F9', color: '#64748B', borderRadius: '0.4rem',
+                    padding: '0.25rem 0.6rem', fontSize: '0.75rem', fontWeight: 600
+                  }}>{tag}</span>
                 ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <Link href={section.href} style={{
+                  flex: 1, background: section.color, color: 'white',
+                  borderRadius: '0.75rem', padding: '0.75rem',
+                  textAlign: 'center', textDecoration: 'none',
+                  fontWeight: 700, fontSize: '0.875rem',
+                  fontFamily: "'Outfit', sans-serif"
+                }}>
+                  Practice Now →
+                </Link>
+                <Link href={`/learn/TEF`} style={{
+                  flex: 1, background: '#F7F9FC', color: '#0A2540',
+                  borderRadius: '0.75rem', padding: '0.75rem',
+                  textAlign: 'center', textDecoration: 'none',
+                  fontWeight: 700, fontSize: '0.875rem',
+                  border: '1px solid #E2E8F0'
+                }}>
+                  Study Tips
+                </Link>
               </div>
             </div>
           ))}
-          {Object.keys(answers).length === section.questions.length && (
-            <button onClick={() => {
-              let s = 0;
-              section.questions.forEach((q, i) => { if (answers[i] === q.ans) s++; });
-              setScore(s);
-              setStep('done');
-            }}
-              className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 shadow-lift"
-              style={{ background: color }}>
-              {tt.submit}
-            </button>
-          )}
         </div>
-      )}
-    </div>
-  );
-}
 
-// ── Writing Section ──────────────────────────────────────────────────────────
-function WritingSection({ section, lang, tt, addXP, onBack }) {
-  const [text, setText] = useState('');
-  const [feedback, setFeedback] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const color = SECTION_COLORS.writing;
-  const prompt = section.prompts[0][lang] || section.prompts[0].en;
-
-  const getFeedback = async () => {
-    if (text.length < 30) return;
-    setLoading(true);
-    try {
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, text }),
-      });
-      const data = await res.json();
-      setFeedback(data);
-    } catch {
-      setFeedback({ score: '—', strengths: 'Good effort! Keep practicing.', improve: 'Try to write more sentences.', phrase: 'Je vous écris pour...' });
-    }
-    setLoading(false);
-  };
-
-  if (feedback) {
-    return (
-      <div className="animate-fade-in">
-        <div className="rounded-2xl p-6 mb-4 border" style={{ background: '#F5F3FF', borderColor: '#DDD6FE' }}>
-          <div className="flex justify-between items-center mb-4">
-            <span className="font-display font-bold text-navy text-base">AI Feedback</span>
-            <span className="font-display font-bold text-white text-sm px-3 py-1 rounded-full" style={{ background: color }}>
-              {feedback.score}
-            </span>
-          </div>
-          <div className="mb-3">
-            <div className="text-xs font-semibold text-green-600 uppercase tracking-wider font-body mb-1">{tt.strengths}</div>
-            <p className="text-sm text-slate-700 font-body">{feedback.strengths}</p>
-          </div>
-          <div className="mb-3">
-            <div className="text-xs font-semibold text-yellow-600 uppercase tracking-wider font-body mb-1">{tt.improve}</div>
-            <p className="text-sm text-slate-700 font-body">{feedback.improve}</p>
-          </div>
-          {feedback.phrase && (
-            <div className="bg-white rounded-xl p-4 mt-3">
-              <div className="text-xs font-semibold uppercase tracking-wider font-body mb-1" style={{ color }}>
-                {tt.phrase}
+        {/* CLB Score Table */}
+        <div style={{ background: 'white', borderRadius: '1.25rem', padding: '1.5rem', border: '1.5px solid #E8F0FB', marginBottom: '2rem' }}>
+          <h2 style={{ color: '#0A2540', fontFamily: "'Outfit', sans-serif", fontSize: '1.1rem', margin: '0 0 1rem', fontWeight: 700 }}>
+            📊 TEF Canada Score → CLB Level
+          </h2>
+          {clbLevels.map(level => (
+            <div key={level.clb} style={{
+              display: 'flex', alignItems: 'center', gap: '1rem',
+              padding: '0.75rem 0', borderBottom: '1px solid #F1F5F9'
+            }}>
+              <div style={{
+                background: level.color, color: 'white', borderRadius: '0.5rem',
+                padding: '0.3rem 0.7rem', fontSize: '0.8rem', fontWeight: 700,
+                minWidth: '70px', textAlign: 'center'
+              }}>{level.clb}</div>
+              <div style={{ flex: 1 }}>
+                <span style={{ color: '#0A2540', fontWeight: 600, fontSize: '0.875rem' }}>TEF: {level.tef} points</span>
+                <span style={{ color: '#94A3B8', fontSize: '0.8rem', marginLeft: '0.5rem' }}>— {level.description}</span>
               </div>
-              <div className="font-display font-bold text-navy text-base">{feedback.phrase}</div>
             </div>
-          )}
+          ))}
+          <p style={{ color: '#94A3B8', fontSize: '0.8rem', marginTop: '0.75rem', margin: '0.75rem 0 0' }}>
+            * CLB 7 (271+ TEF points) is the minimum for most Canadian immigration programs
+          </p>
         </div>
-        <button onClick={() => { addXP(50); onBack(); }}
-          className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 shadow-lift"
-          style={{ background: '#0A2540' }}>
-          ← Back (+50 XP)
-        </button>
-      </div>
-    );
-  }
 
-  return (
-    <div className="animate-fade-in">
-      <div className="card p-5 mb-4">
-        <div className="text-xs font-semibold uppercase tracking-widest font-body mb-3" style={{ color }}>
-          {tt.writeTask}
-        </div>
-        <p className="text-sm text-slate-700 font-body leading-relaxed">{prompt}</p>
-      </div>
-      <textarea
-        value={text}
-        onChange={e => setText(e.target.value)}
-        placeholder="Write your response here (French or English for practice)..."
-        className="w-full min-h-44 border-2 border-slate-200 rounded-2xl p-4 text-sm font-body text-slate-700 outline-none resize-y focus:border-purple-400 transition-colors"
-        style={{ background: 'white' }}
-      />
-      <div className="flex justify-between items-center text-xs text-slate-400 font-body mt-1.5 mb-4">
-        <span>{text.length} characters</span>
-        <span className={text.length >= 30 ? 'text-green-600' : ''}>
-          {text.length < 30 ? `${30 - text.length} more characters needed` : 'Ready to submit ✓'}
-        </span>
-      </div>
-      <button
-        disabled={text.length < 30 || loading}
-        onClick={getFeedback}
-        className={`w-full py-4 rounded-2xl font-display font-bold text-sm text-white transition-all ${
-          text.length >= 30 && !loading ? 'hover:opacity-90 shadow-lift' : 'opacity-40 cursor-not-allowed'
-        }`}
-        style={{ background: color }}>
-        {loading ? tt.getting : tt.getFeedback}
-      </button>
-    </div>
-  );
-}
-
-// ── Main TEF Page ────────────────────────────────────────────────────────────
-export default function TEFPage() {
-  const { state, addXP } = useApp();
-  const lang = state.lang || 'en';
-  const tt = T[lang]?.tef || T.en.tef;
-  const navT = T[lang]?.nav || T.en.nav;
-
-  const [activeSection, setActiveSection] = useState(null);
-
-  if (activeSection) {
-    const section = TEF_SECTIONS.find(s => s.id === activeSection);
-    const color = SECTION_COLORS[activeSection];
-    return (
-      <div className="page-shell">
-        <Nav navT={navT} />
-        <main className="page-content">
-          <button onClick={() => setActiveSection(null)}
-            className="text-sm text-slate-500 hover:text-navy font-body mb-5 transition-colors">
-            ← Back to TEF Prep
-          </button>
-          <div className="rounded-3xl p-6 mb-6 text-white" style={{ background: `linear-gradient(135deg, ${color}, ${color}BB)` }}>
-            <div className="text-3xl mb-3">{section.icon}</div>
-            <h2 className="font-display font-bold text-xl mb-1">{section.title[lang] || section.title.en}</h2>
-            <p className="text-sm opacity-80 font-body">{section.desc[lang] || section.desc.en}</p>
-          </div>
-
-          {section.comingSoon ? (
-            <div className="card p-10 text-center">
-              <div className="text-4xl mb-3">🚧</div>
-              <p className="font-display font-semibold text-navy">{tt.comingSoon}</p>
+        {/* Quick tips */}
+        <div style={{ background: '#FFF8EC', borderRadius: '1.25rem', padding: '1.5rem', border: '1.5px solid #F6D07A' }}>
+          <h3 style={{ color: '#92400E', fontFamily: "'Outfit', sans-serif", fontSize: '1rem', margin: '0 0 0.75rem', fontWeight: 700 }}>
+            💡 Top 5 TEF Success Tips
+          </h3>
+          {[
+            'Reading: Read questions BEFORE the text — never after',
+            'Writing: Use thèse-antithèse-synthèse structure every time',
+            'Listening: Audio plays ONCE — take notes on numbers and names immediately',
+            'Speaking: Never stay silent — use fillers like "C\'est-à-dire que..." to buy time',
+            'All sections: Vary your vocabulary — repetition costs points',
+          ].map((tip, i) => (
+            <div key={i} style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
+              <span style={{ color: '#E8A020', fontWeight: 800, fontSize: '0.9rem', minWidth: '20px' }}>{i + 1}.</span>
+              <p style={{ color: '#78350F', fontSize: '0.875rem', margin: 0, lineHeight: 1.6 }}>{tip}</p>
             </div>
-          ) : activeSection === 'reading' ? (
-            <ReadingSection section={section} lang={lang} tt={tt} addXP={addXP} onBack={() => setActiveSection(null)} />
-          ) : activeSection === 'writing' ? (
-            <WritingSection section={section} lang={lang} tt={tt} addXP={addXP} onBack={() => setActiveSection(null)} />
-          ) : null}
-        </main>
+          ))}
+        </div>
+
       </div>
-    );
-  }
-
-  return (
-    <div className="page-shell">
-      <Nav navT={navT} />
-      <main className="page-content">
-        <h1 className="font-display font-bold text-navy text-2xl mb-1">{tt.title}</h1>
-        <div className="rounded-2xl p-4 mb-6 border" style={{ background: '#FFFBEB', borderColor: '#FDE68A' }}>
-          <p className="text-sm text-yellow-800 font-body leading-relaxed">💡 {tt.sub}</p>
-        </div>
-
-        <div className="space-y-3">
-          {TEF_SECTIONS.map(sec => {
-            const color = SECTION_COLORS[sec.id];
-            const bg = SECTION_BGS[sec.id];
-            return (
-              <button key={sec.id} onClick={() => setActiveSection(sec.id)}
-                className="card w-full text-left p-5 hover:shadow-lift transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: bg }}>
-                    {sec.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-display font-bold text-navy text-base">
-                        {sec.title[lang] || sec.title.en}
-                      </span>
-                      {sec.comingSoon && (
-                        <span className="text-xs bg-slate-100 text-slate-500 rounded-full px-2 py-0.5 font-body">Soon</span>
-                      )}
-                    </div>
-                    <p className="text-sm text-slate-500 font-body leading-snug">
-                      {sec.desc[lang] || sec.desc.en}
-                    </p>
-                  </div>
-                  <span className="text-slate-300 text-lg flex-shrink-0">→</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </main>
     </div>
-  );
+  )
 }
