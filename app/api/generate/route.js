@@ -1,9 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk'
-
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
-
 export async function POST(req) {
   try {
     const { lang, level, xp, completedLessons } = await req.json()
@@ -14,42 +8,47 @@ export async function POST(req) {
       xp < 1000 ? 'intermediate B1' :
       xp < 1500 ? 'upper intermediate B2' : 'advanced B2-C1'
 
-    const weakAreas = completedLessons?.length < 3 ? 'greetings, numbers, basic vocabulary' :
-      completedLessons?.length < 6 ? 'verbs, sentence structure, time expressions' :
+    const weakAreas = !completedLessons?.length ? 'greetings, numbers, basic vocabulary' :
+      completedLessons.length < 6 ? 'verbs, sentence structure, time expressions' :
       'complex grammar, TEF exam strategies, advanced vocabulary'
 
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
-      messages: [{
-        role: 'user',
-        content: `You are a professional French language teacher creating a daily homework assignment for a TEF Canada student.
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: `You are a professional French language teacher creating a daily homework assignment for a TEF Canada student.
 
 Student level: ${levelLabel}
 XP points: ${xp}
 Completed lessons: ${completedLessons?.join(', ') || 'none yet'}
-Weak areas to focus on: ${weakAreas}
+Weak areas: ${weakAreas}
 Interface language: ${lang || 'en'}
 
-Create an engaging, structured daily French homework assignment. Include:
-1. A warm-up vocabulary exercise (5 words with translations)
-2. A grammar focus point with explanation and 3 examples
-3. A practice exercise (fill in blanks or translate sentences)
-4. A speaking prompt (describe something in French)
-5. A cultural tip about French Canada
+Create an engaging structured daily French homework. Include:
+1. Warm-up vocabulary (5 words with translations and examples)
+2. Grammar focus point with explanation and 3 examples
+3. Practice exercise (fill in blanks or translate 3 sentences)
+4. Speaking prompt (describe something in French)
+5. Cultural tip about French Canada
 
-Format it clearly with emojis and sections. Make it appropriate for ${levelLabel} level. Keep it encouraging and motivating. Total length should be comprehensive but not overwhelming - about 400-500 words.`
-      }]
+Format clearly with emojis and sections. Appropriate for ${levelLabel} level. Keep it encouraging. About 400-500 words.`
+        }]
+      })
     })
 
-    const lesson = message.content[0].text
-
+    const data = await response.json()
+    const lesson = data.content?.[0]?.text || 'Could not generate lesson.'
     return Response.json({ lesson })
   } catch (err) {
     console.error('Generate error:', err)
-    return Response.json({ 
-      error: 'Failed to generate lesson',
-      details: err.message 
-    }, { status: 500 })
+    return Response.json({ error: err.message }, { status: 500 })
   }
 }
