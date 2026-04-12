@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: '/listen',  icon: '🎧', key: 'listen' },
   { href: '/speak',   icon: '🎤', key: 'speak' },
   { href: '/tef',     icon: '🏆', key: 'tef' },
+  { href: '/tools',   icon: '🛠️', key: 'tools' },
   { href: '/profile', icon: '👤', key: 'profile' },
 ]
 
@@ -57,7 +58,7 @@ export default function Nav({ navT }) {
   }
 
   const navLabel = (key) => {
-    const labels = { listen: 'Listen', speak: 'Speak' }
+    const labels = { listen: 'Listen', speak: 'Speak', tools: 'Tools' }
     if (!navT) return labels[key] || key
     return navT[key] || labels[key] || key
   }

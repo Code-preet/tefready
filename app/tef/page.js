@@ -1,10 +1,13 @@
 'use client'
 import Link from 'next/link'
 import { useApp } from '../../components/AppProvider'
+import Nav from '../../components/Nav'
+import { T } from '../../lib/i18n'
 
 export default function TEFPage() {
   const { state } = useApp()
   const lang = state?.lang || 'en'
+  const navT = T[lang]?.nav || T.en.nav
 
   const sections = [
     {
@@ -70,8 +73,9 @@ export default function TEFPage() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FFFEF5', fontFamily: "'Plus Jakarta Sans', sans-serif", padding: '2rem 1rem 6rem' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: '#FFFEF5', fontFamily: "'Plus Jakarta Sans', sans-serif", paddingBottom: '6rem' }}>
+      <Nav navT={navT} />
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem 0' }}>
 
         {/* Header */}
         <div style={{

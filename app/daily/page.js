@@ -13,7 +13,7 @@ function speak(text) {
 }
 
 export default function DailyPage() {
-  const { state, addXP, completedCount } = useApp();
+  const { state, addXP } = useApp();
 if (!state) return null;
   const lang = state.lang || 'en';
   const dt = T[lang]?.daily || T.en.daily;
@@ -24,7 +24,7 @@ if (!state) return null;
   const [error, setError] = useState(null);
   const [done, setDone] = useState(false);
 
-  const level = completedCount < 4 ? 'A1 (absolute beginner)' : completedCount < 8 ? 'A2 (elementary)' : 'B1 (intermediate)';
+  const completedLessons = Object.keys(state.completed || {});
 
   const generateLesson = async () => {
     setLoading(true);
@@ -34,12 +34,12 @@ if (!state) return null;
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ level, completedCount, lang }),
+        body: JSON.stringify({ xp: state.xp || 0, completedLessons, lang }),
       });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setLesson(data);
+      setLesson(data.lesson);
     } catch (e) {
       setError(e.message || 'Could not generate lesson. Please try again.');
     }

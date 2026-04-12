@@ -1,15 +1,23 @@
 'use client'
 import Link from 'next/link'
+import Nav from '../../components/Nav'
+import { useApp } from '../../components/AppProvider'
+import { T } from '../../lib/i18n'
 
 export default function ListenPage() {
+  const { state } = useApp()
+  const lang = state?.lang || 'en'
+  const navT = T[lang]?.nav || T.en.nav
+
   return (
     <div style={{
       minHeight: '100vh',
       background: '#FFFEF5',
       fontFamily: "'Plus Jakarta Sans', sans-serif",
-      padding: '2rem 1rem 6rem'
+      paddingBottom: '6rem'
     }}>
-      <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+      <Nav navT={navT} />
+      <div style={{ maxWidth: '700px', margin: '0 auto', padding: '2rem 1rem 0' }}>
 
         <div style={{
           background: 'linear-gradient(135deg, #0A2540 0%, #1a3a5c 100%)',

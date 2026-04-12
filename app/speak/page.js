@@ -1,16 +1,24 @@
 'use client'
 import Link from 'next/link'
 import { speakingTasks } from '@/lib/speakingData'
+import Nav from '../../components/Nav'
+import { useApp } from '../../components/AppProvider'
+import { T } from '../../lib/i18n'
 
 export default function SpeakPage() {
+  const { state } = useApp()
+  const lang = state?.lang || 'en'
+  const navT = T[lang]?.nav || T.en.nav
+
   return (
     <div style={{
       minHeight: '100vh',
       background: '#FFFEF5',
       fontFamily: "'Plus Jakarta Sans', sans-serif",
-      padding: '2rem 1rem 6rem'
+      paddingBottom: '6rem'
     }}>
-      <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+      <Nav navT={navT} />
+      <div style={{ maxWidth: '700px', margin: '0 auto', padding: '2rem 1rem 0' }}>
 
         <div style={{
           background: 'linear-gradient(135deg, #BE185D 0%, #9D174D 100%)',

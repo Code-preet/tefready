@@ -1,5 +1,8 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
+import Nav from '../../components/Nav'
+import { useApp } from '../../components/AppProvider'
+import { T } from '../../lib/i18n'
 
 // ─── NUMBER TO FRENCH CONVERTER ───────────────────────────────
 function numberToFrench(n) {
@@ -212,6 +215,10 @@ function Clock({ hours, minutes, onTimeChange }) {
 
 // ─── MAIN PAGE ─────────────────────────────────────────────────
 export default function ToolsPage() {
+  const { state } = useApp()
+  const lang = state?.lang || 'en'
+  const navT = T[lang]?.nav || T.en.nav
+
   const [number, setNumber] = useState('')
   const [hours, setHours] = useState(10)
   const [minutes, setMinutes] = useState(10)
@@ -223,8 +230,9 @@ export default function ToolsPage() {
   const frenchNum = number !== '' && !isNaN(numValue) ? numberToFrench(numValue) : null
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FFFEF5', fontFamily: "'Plus Jakarta Sans', sans-serif", padding: '2rem 1rem 6rem' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: '#FFFEF5', fontFamily: "'Plus Jakarta Sans', sans-serif", paddingBottom: '6rem' }}>
+      <Nav navT={navT} />
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem 0' }}>
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
