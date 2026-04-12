@@ -32,7 +32,7 @@ function VocabCard({ item, lang, lt, color }) {
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="font-display font-bold text-navy text-xl leading-tight">{item.fr}</div>
-          <div className="text-sm text-slate-400 font-body italic mt-0.5">/{item.ph}/</div>
+          {item.ph && <div className="text-sm text-slate-400 font-body italic mt-0.5">/{item.ph}/</div>}
         </div>
         <button onClick={handleSpeak}
           className={`ml-3 flex-shrink-0 text-sm px-3 py-1.5 rounded-full font-body font-semibold transition-all ${
@@ -53,10 +53,10 @@ function VocabCard({ item, lang, lt, color }) {
             <div className="text-sm text-green-900 font-body">{item[lang] || item.en}</div>
           </div>
         )}
-        {lang === 'en' && (
+        {lang === 'en' && (item.ph || item.example) && (
           <div className="rounded-xl p-3" style={{ background: '#FFFBEB' }}>
-            <div className="text-xs font-semibold text-yellow-600 font-body mb-1">PHONETIC</div>
-            <div className="text-sm text-yellow-900 font-body">{item.ph}</div>
+            <div className="text-xs font-semibold text-yellow-600 font-body mb-1">{item.ph ? 'PHONETIC' : 'EXAMPLE'}</div>
+            <div className="text-sm text-yellow-900 font-body">{item.ph || item.example}</div>
           </div>
         )}
       </div>
@@ -68,14 +68,14 @@ function VocabCard({ item, lang, lt, color }) {
 function MCQExercise({ exercise, lang, lt, color, onResult }) {
   const [selected, setSelected] = useState(null);
   const [checked, setChecked] = useState(false);
-  const correct = checked && selected === exercise.ans;
-  const question = exercise.q[lang] || exercise.q.en;
+  const correct = checked && selected === exercise.answer;
+  const question = exercise.question;
 
   return (
     <div className="animate-slide-up">
       <p className="font-display font-semibold text-navy text-lg mb-5 leading-snug">{question}</p>
       <div className="space-y-2.5 mb-5">
-        {exercise.opts.map((opt, i) => {
+        {exercise.options.map((opt, i) => {
           let style = {};
           let cls = 'w-full text-left px-5 py-3.5 rounded-2xl text-sm font-body transition-all border-2 ';
           if (!checked) {
@@ -86,10 +86,10 @@ function MCQExercise({ exercise, lang, lt, color, onResult }) {
               cls += 'border-slate-200 text-slate-700 bg-white hover:border-slate-300 hover:bg-slate-50';
             }
           } else {
-            if (i === exercise.ans) {
+            if (i === exercise.answer) {
               cls += 'font-semibold';
               style = { borderColor: '#16A34A', background: '#F0FDF4', color: '#15803D' };
-            } else if (selected === i && selected !== exercise.ans) {
+            } else if (selected === i && selected !== exercise.answer) {
               style = { borderColor: '#DC2626', background: '#FEF2F2', color: '#B91C1C' };
               cls += 'font-semibold';
             } else {
@@ -168,15 +168,16 @@ export default function LessonPage() {
   const { moduleId, lessonId } = useParams();
   const router = useRouter();
   const { state, addXP, markComplete } = useApp();
-if (!state) return null;
-  const lang = state?.lang || 'en';
-  const lt = T[lang]?.lesson || T.en.lesson;
 
   // ALL hooks must be called before any conditional returns (React rules)
   const [step, setStep] = useState('concept');
   const [exerciseIdx, setExerciseIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [completed, setCompleted] = useState(false);
+
+  if (!state) return null;
+  const lang = state?.lang || 'en';
+  const lt = T[lang]?.lesson || T.en.lesson;
 
   const lesson = LESSONS[lessonId];
   const color = MODULE_COLORS[moduleId] || '#0A2540';
@@ -208,7 +209,7 @@ if (!state) return null;
               {lt.back}
             </button>
             <div className="flex-1 text-center font-display font-semibold text-navy text-sm truncate px-2">
-              {lesson.icon} {lesson.title[lang] || lesson.title.en}
+              {lesson.icon || '📖'} {lesson.title[lang] || lesson.title.en}
             </div>
             <div className="text-xs font-semibold flex-shrink-0" style={{ color }}>+{lesson.xp} XP</div>
           </div>
@@ -235,7 +236,7 @@ if (!state) return null;
                 {lt.concept}
               </div>
               <p className="text-base leading-relaxed font-body">
-                {lesson.concept[lang] || lesson.concept.en}
+                {lesson.grammar?.explanation || lesson.concept?.[lang] || lesson.concept?.en || ''}
               </p>
             </div>
             <button onClick={() => setStep('vocab')}

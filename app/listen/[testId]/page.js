@@ -3,15 +3,24 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { listeningTest } from '@/lib/listeningData'
 import Link from 'next/link'
 
+const SPEED_OPTIONS = [
+  { label: '0.6×', value: 0.6 },
+  { label: '0.8×', value: 0.8 },
+  { label: '1×',   value: 1.0 },
+  { label: '1.2×', value: 1.2 },
+]
+
 export default function ListeningTestPage() {
   const [phase, setPhase] = useState('intro')
   const [currentPart, setCurrentPart] = useState(0)
   const [currentItem, setCurrentItem] = useState(0)
   const [answers, setAnswers] = useState({})
   const [selected, setSelected] = useState(null)
-  const [audioState, setAudioState] = useState('idle')
+  const [audioState, setAudioState] = useState('idle') // idle | playing | paused | done
   const [timeLeft, setTimeLeft] = useState(listeningTest.totalTime)
+  const [speed, setSpeed] = useState(0.88)
   const timerRef = useRef(null)
+  const currentTextRef = useRef('')
 
   const allItems = listeningTest.parts.flatMap(p => p.items)
   const totalItems = allItems.length
@@ -33,13 +42,14 @@ export default function ListeningTestPage() {
 
   const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
-  const speakText = useCallback((text) => {
+  const speakText = useCallback((text, rate) => {
     if (typeof window === 'undefined') return
     window.speechSynthesis.cancel()
+    currentTextRef.current = text
     setAudioState('playing')
     const utter = new SpeechSynthesisUtterance(text)
     utter.lang = 'fr-CA'
-    utter.rate = 0.88
+    utter.rate = rate || 0.88
     utter.pitch = 1.0
     const voices = window.speechSynthesis.getVoices()
     const frVoice = voices.find(v => v.lang.startsWith('fr'))
@@ -49,9 +59,28 @@ export default function ListeningTestPage() {
     window.speechSynthesis.speak(utter)
   }, [])
 
+  const handlePause = () => {
+    if (typeof window === 'undefined') return
+    if (audioState === 'playing') {
+      window.speechSynthesis.pause()
+      setAudioState('paused')
+    } else if (audioState === 'paused') {
+      window.speechSynthesis.resume()
+      setAudioState('playing')
+    }
+  }
+
+  const handleSpeedChange = (newSpeed) => {
+    setSpeed(newSpeed)
+    // If audio is currently playing or paused, restart at new speed
+    if (audioState === 'playing' || audioState === 'paused') {
+      speakText(currentTextRef.current, newSpeed)
+    }
+  }
+
   const handleStart = () => {
     setPhase('test')
-    setTimeout(() => speakText(currentData.script), 500)
+    setTimeout(() => speakText(currentData.script, speed), 500)
   }
 
   const handleSelect = (idx) => {
@@ -68,14 +97,14 @@ export default function ListeningTestPage() {
     if (currentItem < partItems.length - 1) {
       setCurrentItem(ci => {
         const next = ci + 1
-        setTimeout(() => speakText(listeningTest.parts[currentPart].items[next].script), 300)
+        setTimeout(() => speakText(listeningTest.parts[currentPart].items[next].script, speed), 300)
         return next
       })
     } else if (currentPart < listeningTest.parts.length - 1) {
       setCurrentPart(cp => {
         const nextPart = cp + 1
         setCurrentItem(0)
-        setTimeout(() => speakText(listeningTest.parts[nextPart].items[0].script), 300)
+        setTimeout(() => speakText(listeningTest.parts[nextPart].items[0].script, speed), 300)
         return nextPart
       })
     } else {
@@ -176,7 +205,7 @@ export default function ListeningTestPage() {
           </div>
 
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button onClick={() => { setPhase('intro'); setAnswers({}); setCurrentPart(0); setCurrentItem(0); setTimeLeft(listeningTest.totalTime) }} style={{
+            <button onClick={() => { setPhase('intro'); setAnswers({}); setCurrentPart(0); setCurrentItem(0); setTimeLeft(listeningTest.totalTime); setAudioState('idle'); window.speechSynthesis.cancel() }} style={{
               flex: 1, background: '#0A2540', color: 'white', border: 'none',
               borderRadius: '0.75rem', padding: '1rem', fontWeight: 700,
               cursor: 'pointer', fontFamily: "'Outfit', sans-serif"
@@ -209,18 +238,50 @@ export default function ListeningTestPage() {
       <div style={{ maxWidth: '680px', margin: '0 auto', padding: '1.5rem 1rem 6rem' }}>
         <div style={{ background: '#0A2540', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem', textAlign: 'center' }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
-            {audioState === 'playing' ? '🔊' : audioState === 'done' ? '✅' : '🔇'}
+            {audioState === 'playing' ? '🔊' : audioState === 'paused' ? '⏸️' : audioState === 'done' ? '✅' : '🔇'}
           </div>
           <p style={{ color: '#94A3B8', margin: '0 0 1rem', fontSize: '0.9rem' }}>
-            {audioState === 'playing' ? 'Audio playing — listen carefully...' : audioState === 'done' ? 'Audio finished — select your answer below' : 'Audio will play shortly...'}
+            {audioState === 'playing' ? 'Audio playing — listen carefully...'
+              : audioState === 'paused' ? 'Audio paused — press resume to continue'
+              : audioState === 'done' ? 'Audio finished — select your answer below'
+              : 'Audio will play shortly...'}
           </p>
+
+          {/* Pause / Resume button */}
+          {(audioState === 'playing' || audioState === 'paused') && (
+            <button onClick={handlePause} style={{
+              background: 'rgba(255,255,255,0.15)', color: 'white',
+              border: '1px solid rgba(255,255,255,0.3)', borderRadius: '0.5rem',
+              padding: '0.5rem 1.25rem', cursor: 'pointer', fontSize: '0.9rem',
+              fontWeight: 700, marginBottom: '0.75rem'
+            }}>
+              {audioState === 'paused' ? '▶ Resume' : '⏸ Pause'}
+            </button>
+          )}
+
+          {/* Replay button (shown after audio done) */}
           {audioState === 'done' && (
-            <button onClick={() => speakText(currentData.script)} style={{
+            <button onClick={() => speakText(currentData.script, speed)} style={{
               background: 'rgba(255,255,255,0.1)', color: 'white',
               border: '1px solid rgba(255,255,255,0.2)', borderRadius: '0.5rem',
-              padding: '0.5rem 1.25rem', cursor: 'pointer', fontSize: '0.85rem'
+              padding: '0.5rem 1.25rem', cursor: 'pointer', fontSize: '0.85rem',
+              marginBottom: '0.75rem'
             }}>🔄 Replay (practice only)</button>
           )}
+
+          {/* Speed selector */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <span style={{ color: '#64748B', fontSize: '0.78rem', alignSelf: 'center', marginRight: '0.25rem' }}>Speed:</span>
+            {SPEED_OPTIONS.map(opt => (
+              <button key={opt.value} onClick={() => handleSpeedChange(opt.value)} style={{
+                background: Math.abs(speed - opt.value) < 0.05 ? '#E8A020' : 'rgba(255,255,255,0.08)',
+                color: Math.abs(speed - opt.value) < 0.05 ? '#0A2540' : '#CBD5E0',
+                border: 'none', borderRadius: '0.4rem',
+                padding: '0.3rem 0.65rem', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700,
+                transition: 'all 0.15s'
+              }}>{opt.label}</button>
+            ))}
+          </div>
         </div>
 
         <div style={{ background: 'white', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1rem', border: '1.5px solid #E8F0FB' }}>

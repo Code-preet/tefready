@@ -69,7 +69,7 @@ if (!state) return null;
                   {/* Icon */}
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
                     style={{ background: bg }}>
-                    {lesson.icon}
+                    {lesson.icon || '📖'}
                   </div>
                   {/* Info */}
                   <div className="flex-1 min-w-0">

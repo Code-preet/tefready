@@ -67,7 +67,7 @@ if (!state) return null;
           {firstIncomplete ? (
             <Link href={`/learn/${firstIncomplete.moduleId}/${firstIncomplete.id}`}
               className="card p-5 no-underline hover:shadow-lift transition-shadow">
-              <div className="text-2xl mb-2">{firstIncomplete.icon}</div>
+              <div className="text-2xl mb-2">{firstIncomplete.icon || '📚'}</div>
               <div className="font-display font-semibold text-navy text-sm mb-1">{ht.continueLearn}</div>
               <div className="text-xs text-slate-500 font-body leading-snug">
                 {firstIncomplete.title[lang] || firstIncomplete.title.en}
