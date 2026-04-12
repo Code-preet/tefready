@@ -8,7 +8,7 @@ import { LANG_NAMES } from '../lib/i18n';
 const NAV_ITEMS = [
   { href: '/',        icon: '🏠', key: 'home' },
   { href: '/learn',   icon: '📚', key: 'learn' },
-  { href: '/daily',   icon: '⚡', key: 'daily' },
+  { href: '/quick',   icon: '⚡', key: 'quick' },
   { href: '/listen',  icon: '🎧', key: 'listen' },
   { href: '/speak',   icon: '🎤', key: 'speak' },
   { href: '/tef',     icon: '🏆', key: 'tef' },
@@ -58,7 +58,7 @@ export default function Nav({ navT }) {
   }
 
   const navLabel = (key) => {
-    const labels = { listen: 'Listen', speak: 'Speak', tools: 'Tools' }
+    const labels = { listen: 'Listen', speak: 'Speak', tools: 'Tools', quick: 'Feed', daily: 'Daily' }
     if (!navT) return labels[key] || key
     return navT[key] || labels[key] || key
   }
