@@ -64,6 +64,70 @@ function VocabCard({ item, lang, lt, color }) {
   );
 }
 
+// ── Fill-in-the-Blanks Exercise ──────────────────────────────────────────────
+function FillBlanksExercise({ exercise, lt, color, onResult }) {
+  const [inputs, setInputs] = useState(exercise.blanks.map(() => ''));
+  const [checked, setChecked] = useState(false);
+  const results = exercise.blanks.map((b, i) => inputs[i].trim().toLowerCase() === b.toLowerCase());
+  const allCorrect = results.every(Boolean);
+
+  const handleCheck = () => setChecked(true);
+  const handleNext = () => onResult(allCorrect);
+
+  return (
+    <div className="animate-slide-up">
+      <div className="rounded-2xl p-4 mb-4" style={{ background: color + '0D', border: `1px solid ${color}25` }}>
+        <div className="text-xs font-semibold font-body uppercase tracking-wider mb-2" style={{ color }}>💡 Hint: {exercise.hint}</div>
+      </div>
+      <p className="font-display font-semibold text-navy text-base mb-5 leading-relaxed">
+        {exercise.sentence.split('___').map((part, i) => (
+          <span key={i}>
+            {part}
+            {i < exercise.blanks.length && (
+              <input
+                type="text"
+                value={inputs[i]}
+                onChange={e => {
+                  if (checked) return;
+                  const next = [...inputs]; next[i] = e.target.value; setInputs(next);
+                }}
+                className="font-body text-sm px-2 py-1 rounded-lg border-2 mx-1 outline-none w-32"
+                style={{
+                  borderColor: !checked ? color : results[i] ? '#16A34A' : '#DC2626',
+                  background: !checked ? 'white' : results[i] ? '#F0FDF4' : '#FEF2F2',
+                  color: !checked ? '#0A2540' : results[i] ? '#15803D' : '#B91C1C',
+                }}
+                placeholder="..."
+              />
+            )}
+          </span>
+        ))}
+      </p>
+      {checked && (
+        <div className="rounded-xl px-4 py-3 mb-3 font-body text-sm" style={{
+          background: allCorrect ? '#F0FDF4' : '#FEF2F2',
+          color: allCorrect ? '#15803D' : '#B91C1C'
+        }}>
+          {allCorrect ? '✓ Perfect!' : `Correct answers: ${exercise.blanks.join(', ')}`}
+        </div>
+      )}
+      {!checked ? (
+        <button disabled={inputs.some(v => !v.trim())} onClick={handleCheck}
+          className={`w-full py-4 rounded-2xl font-display font-bold text-sm transition-all ${inputs.every(v => v.trim()) ? 'text-white shadow-lift' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}
+          style={inputs.every(v => v.trim()) ? { background: color } : {}}>
+          {lt.check}
+        </button>
+      ) : (
+        <button onClick={handleNext}
+          className="w-full py-4 rounded-2xl font-display font-bold text-sm text-white shadow-lift hover:opacity-90"
+          style={{ background: color }}>
+          {lt.next}
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── MCQ Exercise ─────────────────────────────────────────────────────────────
 function MCQExercise({ exercise, lang, lt, color, onResult }) {
   const [selected, setSelected] = useState(null);
@@ -181,7 +245,15 @@ export default function LessonPage() {
 
   const lesson = LESSONS[lessonId];
   const color = MODULE_COLORS[moduleId] || '#0A2540';
-  const STEPS = ['concept', 'vocab', 'exercises'];
+  // Build steps dynamically — only include sections the lesson actually has
+  const STEPS = [
+    'concept',
+    'vocab',
+    lesson?.dialogue ? 'dialogue' : null,
+    lesson?.speaking ? 'speaking' : null,
+    lesson?.writing  ? 'writing'  : null,
+    'exercises',
+  ].filter(Boolean);
 
   if (!lesson) return (
     <div className="p-8 text-center">
@@ -215,12 +287,15 @@ export default function LessonPage() {
           </div>
           <ProgressBar pct={progressPct} color={color} height={3} />
           <div className="flex justify-between mt-1.5">
-            {STEPS.map((s, i) => (
-              <span key={s} className={`text-xs font-body ${i <= stepIdx ? 'font-semibold' : 'text-slate-400'}`}
-                style={i <= stepIdx ? { color } : {}}>
-                {lt[s]}
-              </span>
-            ))}
+            {STEPS.map((s, i) => {
+              const labels = { concept: lt.concept || 'Concept', vocab: lt.vocab || 'Vocab', dialogue: '💬 Dialogue', speaking: '🎙️ Speaking', writing: '✍️ Writing', exercises: lt.practice || 'Practice' };
+              return (
+                <span key={s} className={`text-xs font-body ${i <= stepIdx ? 'font-semibold' : 'text-slate-400'}`}
+                  style={i <= stepIdx ? { color } : {}}>
+                  {labels[s] || s}
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -231,14 +306,43 @@ export default function LessonPage() {
         {/* ── CONCEPT ── */}
         {step === 'concept' && (
           <div className="animate-fade-in">
-            <div className="rounded-3xl p-7 mb-6 text-white" style={{ background: `linear-gradient(135deg, ${color}, ${color}CC)` }}>
+            {lesson.objective && (
+              <div className="rounded-2xl px-5 py-4 mb-4 flex gap-3 items-start" style={{ background: color + '0D', border: `1px solid ${color}25` }}>
+                <span className="text-lg flex-shrink-0">🎯</span>
+                <div>
+                  <div className="text-xs font-semibold font-body uppercase tracking-wider mb-1" style={{ color }}>Lesson Objective</div>
+                  <p className="text-sm text-slate-700 font-body leading-relaxed">{lesson.objective}</p>
+                </div>
+              </div>
+            )}
+            <div className="rounded-3xl p-7 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${color}, ${color}CC)` }}>
               <div className="text-xs font-semibold tracking-widest uppercase opacity-70 mb-3 font-body">
-                {lt.concept}
+                {lesson.grammar?.title || lt.concept}
               </div>
               <p className="text-base leading-relaxed font-body">
                 {lesson.grammar?.explanation || lesson.concept?.[lang] || lesson.concept?.en || ''}
               </p>
             </div>
+            {lesson.grammar?.points?.length > 0 && (
+              <div className="card p-5 mb-4">
+                <div className="text-xs font-semibold font-body uppercase tracking-wider text-slate-400 mb-3">Key Rules</div>
+                <ul className="space-y-2">
+                  {lesson.grammar.points.map((pt, i) => (
+                    <li key={i} className="flex gap-2 text-sm font-body text-slate-700">
+                      <span style={{ color }} className="font-bold flex-shrink-0">→</span> {pt}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {lesson.grammar?.examples?.length > 0 && (
+              <div className="card p-5 mb-6" style={{ background: '#F8FAFF' }}>
+                <div className="text-xs font-semibold font-body uppercase tracking-wider text-slate-400 mb-3">Examples</div>
+                {lesson.grammar.examples.map((ex, i) => (
+                  <div key={i} className="text-sm font-body text-navy italic mb-1.5">• {ex}</div>
+                ))}
+              </div>
+            )}
             <button onClick={() => setStep('vocab')}
               className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
               style={{ background: color }}>
@@ -259,8 +363,119 @@ export default function LessonPage() {
             {lesson.vocab.map((item, i) => (
               <VocabCard key={i} item={item} lang={lang} lt={lt} color={color} />
             ))}
-            <button onClick={() => setStep('exercises')}
+            <button onClick={() => setStep(STEPS[STEPS.indexOf('vocab') + 1])}
               className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift mt-2"
+              style={{ background: color }}>
+              {STEPS[STEPS.indexOf('vocab') + 1] === 'dialogue' ? '💬 Read Dialogue →' : lt.startPractice}
+            </button>
+          </div>
+        )}
+
+        {/* ── DIALOGUE ── */}
+        {step === 'dialogue' && lesson.dialogue && (
+          <div className="animate-fade-in">
+            <div className="mb-4">
+              <h2 className="font-display font-bold text-navy text-lg mb-1">{lesson.dialogue.title}</h2>
+              <p className="text-sm text-slate-500 font-body">{lesson.dialogue.context}</p>
+            </div>
+            <div className="card p-5 mb-4 space-y-4">
+              {lesson.dialogue.lines.map((line, i) => {
+                const isA = i % 2 === 0;
+                return (
+                  <div key={i} className={`flex gap-3 ${isA ? '' : 'flex-row-reverse'}`}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                      style={{ background: isA ? color : '#64748B' }}>
+                      {line.speaker[0]}
+                    </div>
+                    <div className={`max-w-xs rounded-2xl px-4 py-3 ${isA ? 'rounded-tl-sm' : 'rounded-tr-sm'}`}
+                      style={{ background: isA ? color + '12' : '#F1F5F9' }}>
+                      <div className="text-xs font-semibold font-body mb-1" style={{ color: isA ? color : '#64748B' }}>{line.speaker}</div>
+                      <p className="text-sm font-body text-slate-800 leading-relaxed">{line.text}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {lesson.dialogue.keyPhrases?.length > 0 && (
+              <div className="card p-5 mb-5" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
+                <div className="text-xs font-semibold font-body uppercase tracking-wider text-yellow-700 mb-3">🔑 Key Phrases</div>
+                {lesson.dialogue.keyPhrases.map((kp, i) => (
+                  <div key={i} className="flex justify-between items-start py-1.5 border-b border-yellow-100 last:border-0">
+                    <span className="text-sm font-body font-semibold text-slate-800 italic">{kp.fr}</span>
+                    <span className="text-sm font-body text-slate-500 text-right ml-3">{kp.en}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button onClick={() => setStep(STEPS[STEPS.indexOf('dialogue') + 1])}
+              className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
+              style={{ background: color }}>
+              {STEPS[STEPS.indexOf('dialogue') + 1] === 'speaking' ? '🎙️ Speaking Task →' : lt.startPractice}
+            </button>
+          </div>
+        )}
+
+        {/* ── SPEAKING ── */}
+        {step === 'speaking' && lesson.speaking && (
+          <div className="animate-fade-in">
+            <div className="rounded-3xl p-6 mb-5 text-white" style={{ background: `linear-gradient(135deg, ${color}, ${color}BB)` }}>
+              <div className="text-xs font-semibold tracking-widest uppercase opacity-70 mb-2 font-body">🎙️ TEF Speaking Task · {lesson.speaking.clbLevel} · {lesson.speaking.timeLimit}</div>
+              <p className="text-base leading-relaxed font-body font-semibold">{lesson.speaking.prompt}</p>
+            </div>
+            {lesson.speaking.sampleOpener && (
+              <div className="card p-5 mb-4" style={{ background: '#F0FDF4', border: '1px solid #86EFAC' }}>
+                <div className="text-xs font-semibold font-body uppercase tracking-wider text-green-700 mb-2">💡 Sample Opener</div>
+                <p className="text-sm font-body text-green-900 italic leading-relaxed">"{lesson.speaking.sampleOpener}"</p>
+              </div>
+            )}
+            <div className="card p-5 mb-5">
+              <div className="text-xs font-semibold font-body uppercase tracking-wider text-slate-400 mb-3">Examiner Tips</div>
+              <ul className="space-y-2">
+                {lesson.speaking.tips.map((tip, i) => (
+                  <li key={i} className="flex gap-2 text-sm font-body text-slate-700">
+                    <span className="font-bold flex-shrink-0" style={{ color }}>✓</span> {tip}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <button onClick={() => setStep(STEPS[STEPS.indexOf('speaking') + 1])}
+              className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
+              style={{ background: color }}>
+              {STEPS[STEPS.indexOf('speaking') + 1] === 'writing' ? '✍️ Writing Task →' : lt.startPractice}
+            </button>
+          </div>
+        )}
+
+        {/* ── WRITING ── */}
+        {step === 'writing' && lesson.writing && (
+          <div className="animate-fade-in">
+            <div className="rounded-3xl p-6 mb-5 text-white" style={{ background: `linear-gradient(135deg, ${color}, ${color}BB)` }}>
+              <div className="text-xs font-semibold tracking-widest uppercase opacity-70 mb-2 font-body">✍️ TEF Writing Task · {lesson.writing.clbLevel} · {lesson.writing.wordCount}</div>
+              <p className="text-base leading-relaxed font-body font-semibold">{lesson.writing.prompt}</p>
+            </div>
+            {lesson.writing.structure?.length > 0 && (
+              <div className="card p-5 mb-4">
+                <div className="text-xs font-semibold font-body uppercase tracking-wider text-slate-400 mb-3">📐 Structure Guide</div>
+                <div className="space-y-3">
+                  {lesson.writing.structure.map((s, i) => (
+                    <div key={i} className="rounded-xl p-3" style={{ background: color + '08', border: `1px solid ${color}20` }}>
+                      <div className="text-xs font-bold font-body mb-1" style={{ color }}>{s.part}</div>
+                      <p className="text-sm font-body text-slate-700">{s.instruction}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {lesson.writing.usefulExpressions?.length > 0 && (
+              <div className="card p-5 mb-5" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
+                <div className="text-xs font-semibold font-body uppercase tracking-wider text-yellow-700 mb-3">🗣️ Useful Expressions</div>
+                {lesson.writing.usefulExpressions.map((expr, i) => (
+                  <div key={i} className="text-sm font-body text-slate-700 py-1 border-b border-yellow-100 last:border-0 italic">{expr}</div>
+                ))}
+              </div>
+            )}
+            <button onClick={() => setStep('exercises')}
+              className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
               style={{ background: color }}>
               {lt.startPractice}
             </button>
@@ -278,28 +493,40 @@ export default function LessonPage() {
             </div>
             <ProgressBar pct={Math.round(exerciseIdx / lesson.exercises.length * 100)} color={color} height={4} />
             <div className="mt-6">
-              <MCQExercise
-                key={exerciseIdx}
-                exercise={lesson.exercises[exerciseIdx]}
-                lang={lang}
-                lt={lt}
-                color={color}
-                onResult={(isCorrect) => {
-                  const newScore = isCorrect ? score + 1 : score;
-                  if (exerciseIdx < lesson.exercises.length - 1) {
-                    setScore(newScore);
-                    setExerciseIdx(exerciseIdx + 1);
-                  } else {
-                    // Complete
-                    if (!state.completed?.[lesson.id]) {
-                      addXP(lesson.xp);
-                      markComplete(lesson.id);
+              {lesson.exercises[exerciseIdx]?.type === 'fill' ? (
+                <FillBlanksExercise
+                  key={exerciseIdx}
+                  exercise={lesson.exercises[exerciseIdx]}
+                  lt={lt}
+                  color={color}
+                  onResult={(isCorrect) => {
+                    const newScore = isCorrect ? score + 1 : score;
+                    if (exerciseIdx < lesson.exercises.length - 1) {
+                      setScore(newScore); setExerciseIdx(exerciseIdx + 1);
+                    } else {
+                      if (!state.completed?.[lesson.id]) { addXP(lesson.xp); markComplete(lesson.id); }
+                      setScore(newScore); setCompleted(true);
                     }
-                    setScore(newScore);
-                    setCompleted(true);
-                  }
-                }}
-              />
+                  }}
+                />
+              ) : (
+                <MCQExercise
+                  key={exerciseIdx}
+                  exercise={lesson.exercises[exerciseIdx]}
+                  lang={lang}
+                  lt={lt}
+                  color={color}
+                  onResult={(isCorrect) => {
+                    const newScore = isCorrect ? score + 1 : score;
+                    if (exerciseIdx < lesson.exercises.length - 1) {
+                      setScore(newScore); setExerciseIdx(exerciseIdx + 1);
+                    } else {
+                      if (!state.completed?.[lesson.id]) { addXP(lesson.xp); markComplete(lesson.id); }
+                      setScore(newScore); setCompleted(true);
+                    }
+                  }}
+                />
+              )}
             </div>
           </div>
         )}
