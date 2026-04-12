@@ -8,7 +8,7 @@ import { LANG_NAMES } from '../lib/i18n';
 const NAV_ITEMS = [
   { href: '/',        icon: '🏠', key: 'home' },
   { href: '/learn',   icon: '📚', key: 'learn' },
-  { href: '/quick',   icon: '⚡', key: 'quick' },
+  { href: '/daily',   icon: '🎯', key: 'daily' },
   { href: '/listen',  icon: '🎧', key: 'listen' },
   { href: '/speak',   icon: '🎤', key: 'speak' },
   { href: '/tef',     icon: '🏆', key: 'tef' },
