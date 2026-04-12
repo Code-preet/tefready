@@ -198,6 +198,117 @@ function MCQExercise({ exercise, lang, lt, color, onResult }) {
   );
 }
 
+// ── Dialogue Line (with translation toggle) ──────────────────────────────────
+function DialogueLine({ line, isA, color }) {
+  const [showTranslation, setShowTranslation] = useState(false);
+  return (
+    <div className={`flex gap-3 items-start ${isA ? '' : 'flex-row-reverse'}`}>
+      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-1"
+        style={{ background: isA ? color : '#64748B' }}>
+        {line.speaker[0]}
+      </div>
+      <div className={`flex-1 max-w-xs rounded-2xl px-4 py-3 ${isA ? 'rounded-tl-sm' : 'rounded-tr-sm'}`}
+        style={{ background: isA ? color + '12' : '#F1F5F9' }}>
+        <div className="flex justify-between items-center mb-1 gap-2">
+          <span className="text-xs font-semibold font-body" style={{ color: isA ? color : '#64748B' }}>{line.speaker}</span>
+          {line.translation && (
+            <button onClick={() => setShowTranslation(v => !v)}
+              className="text-xs font-body px-2 py-0.5 rounded-full flex-shrink-0 transition-all"
+              style={{
+                background: showTranslation ? color + '20' : 'rgba(0,0,0,0.06)',
+                color: showTranslation ? color : '#94A3B8'
+              }}>
+              {showTranslation ? 'FR' : 'EN'}
+            </button>
+          )}
+        </div>
+        <p className="text-sm font-body text-slate-800 leading-relaxed">
+          {showTranslation && line.translation ? line.translation : line.text}
+        </p>
+        {showTranslation && line.translation && (
+          <p className="text-xs font-body text-slate-400 italic mt-1 leading-snug">{line.text}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Dialogue Section ─────────────────────────────────────────────────────────
+function DialogueSection({ dialogue, color, onNext, nextLabel }) {
+  const [showAllTranslations, setShowAllTranslations] = useState(false);
+  return (
+    <div className="animate-fade-in">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-1 gap-3">
+        <div>
+          <h2 className="font-display font-bold text-navy text-lg leading-tight">{dialogue.title}</h2>
+          <p className="text-sm text-slate-500 font-body mt-0.5">{dialogue.context}</p>
+        </div>
+        {dialogue.lines.some(l => l.translation) && (
+          <button onClick={() => setShowAllTranslations(v => !v)}
+            className="flex-shrink-0 text-xs font-body font-semibold px-3 py-1.5 rounded-full border transition-all mt-1"
+            style={{
+              borderColor: showAllTranslations ? color : '#E2E8F0',
+              color: showAllTranslations ? color : '#64748B',
+              background: showAllTranslations ? color + '10' : 'white'
+            }}>
+            {showAllTranslations ? '🇫🇷 French' : '🇬🇧 Translate All'}
+          </button>
+        )}
+      </div>
+
+      {/* Tip bar */}
+      <div className="rounded-xl px-4 py-2.5 mb-4 mt-3 flex gap-2 items-center" style={{ background: color + '0A' }}>
+        <span className="text-sm">💡</span>
+        <p className="text-xs font-body text-slate-600">Tap the <strong>EN</strong> button on any line to see its translation</p>
+      </div>
+
+      {/* Conversation */}
+      <div className="card p-5 mb-4 space-y-4">
+        {dialogue.lines.map((line, i) => (
+          showAllTranslations
+            ? (
+              <div key={i} className={`flex gap-3 items-start ${i % 2 === 0 ? '' : 'flex-row-reverse'}`}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-1"
+                  style={{ background: i % 2 === 0 ? color : '#64748B' }}>
+                  {line.speaker[0]}
+                </div>
+                <div className={`flex-1 max-w-xs rounded-2xl px-4 py-3 ${i % 2 === 0 ? 'rounded-tl-sm' : 'rounded-tr-sm'}`}
+                  style={{ background: i % 2 === 0 ? color + '12' : '#F1F5F9' }}>
+                  <div className="text-xs font-semibold font-body mb-1" style={{ color: i % 2 === 0 ? color : '#64748B' }}>{line.speaker}</div>
+                  {line.translation && <p className="text-sm font-body text-slate-800 leading-relaxed mb-1">{line.translation}</p>}
+                  <p className="text-xs font-body text-slate-400 italic leading-snug">{line.text}</p>
+                </div>
+              </div>
+            )
+            : <DialogueLine key={i} line={line} isA={i % 2 === 0} color={color} />
+        ))}
+      </div>
+
+      {/* Key Phrases */}
+      {dialogue.keyPhrases?.length > 0 && (
+        <div className="card p-5 mb-5" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
+          <div className="text-xs font-semibold font-body uppercase tracking-wider text-yellow-700 mb-3">🔑 Key Phrases</div>
+          <div className="space-y-0">
+            {dialogue.keyPhrases.map((kp, i) => (
+              <div key={i} className="flex justify-between items-start py-2 border-b border-yellow-100 last:border-0 gap-3">
+                <span className="text-sm font-body font-semibold text-slate-800 italic">{kp.fr}</span>
+                <span className="text-sm font-body text-slate-500 text-right flex-shrink-0">{kp.en}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <button onClick={onNext}
+        className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
+        style={{ background: color }}>
+        {nextLabel}
+      </button>
+    </div>
+  );
+}
+
 // ── Complete Screen ──────────────────────────────────────────────────────────
 function CompleteScreen({ lesson, score, total, lang, lt, color, moduleId }) {
   const pct = Math.round(score / total * 100);
@@ -246,13 +357,14 @@ export default function LessonPage() {
   const lesson = LESSONS[lessonId];
   const color = MODULE_COLORS[moduleId] || '#0A2540';
   // Build steps dynamically — only include sections the lesson actually has
+  // Order: concept → vocab → dialogue → exercises → speaking → writing
   const STEPS = [
     'concept',
     'vocab',
-    lesson?.dialogue ? 'dialogue' : null,
-    lesson?.speaking ? 'speaking' : null,
-    lesson?.writing  ? 'writing'  : null,
+    lesson?.dialogue  ? 'dialogue'  : null,
     'exercises',
+    lesson?.speaking  ? 'speaking'  : null,
+    lesson?.writing   ? 'writing'   : null,
   ].filter(Boolean);
 
   if (!lesson) return (
@@ -363,56 +475,28 @@ export default function LessonPage() {
             {lesson.vocab.map((item, i) => (
               <VocabCard key={i} item={item} lang={lang} lt={lt} color={color} />
             ))}
-            <button onClick={() => setStep(STEPS[STEPS.indexOf('vocab') + 1])}
-              className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift mt-2"
-              style={{ background: color }}>
-              {STEPS[STEPS.indexOf('vocab') + 1] === 'dialogue' ? '💬 Read Dialogue →' : lt.startPractice}
-            </button>
+            {(() => {
+              const nextStep = STEPS[STEPS.indexOf('vocab') + 1];
+              const nextLabel = nextStep === 'dialogue' ? '💬 Read Dialogue →' : nextStep === 'exercises' ? lt.startPractice : '→ Continue';
+              return (
+                <button onClick={() => setStep(nextStep)}
+                  className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift mt-2"
+                  style={{ background: color }}>
+                  {nextLabel}
+                </button>
+              );
+            })()}
           </div>
         )}
 
         {/* ── DIALOGUE ── */}
         {step === 'dialogue' && lesson.dialogue && (
-          <div className="animate-fade-in">
-            <div className="mb-4">
-              <h2 className="font-display font-bold text-navy text-lg mb-1">{lesson.dialogue.title}</h2>
-              <p className="text-sm text-slate-500 font-body">{lesson.dialogue.context}</p>
-            </div>
-            <div className="card p-5 mb-4 space-y-4">
-              {lesson.dialogue.lines.map((line, i) => {
-                const isA = i % 2 === 0;
-                return (
-                  <div key={i} className={`flex gap-3 ${isA ? '' : 'flex-row-reverse'}`}>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                      style={{ background: isA ? color : '#64748B' }}>
-                      {line.speaker[0]}
-                    </div>
-                    <div className={`max-w-xs rounded-2xl px-4 py-3 ${isA ? 'rounded-tl-sm' : 'rounded-tr-sm'}`}
-                      style={{ background: isA ? color + '12' : '#F1F5F9' }}>
-                      <div className="text-xs font-semibold font-body mb-1" style={{ color: isA ? color : '#64748B' }}>{line.speaker}</div>
-                      <p className="text-sm font-body text-slate-800 leading-relaxed">{line.text}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {lesson.dialogue.keyPhrases?.length > 0 && (
-              <div className="card p-5 mb-5" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
-                <div className="text-xs font-semibold font-body uppercase tracking-wider text-yellow-700 mb-3">🔑 Key Phrases</div>
-                {lesson.dialogue.keyPhrases.map((kp, i) => (
-                  <div key={i} className="flex justify-between items-start py-1.5 border-b border-yellow-100 last:border-0">
-                    <span className="text-sm font-body font-semibold text-slate-800 italic">{kp.fr}</span>
-                    <span className="text-sm font-body text-slate-500 text-right ml-3">{kp.en}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-            <button onClick={() => setStep(STEPS[STEPS.indexOf('dialogue') + 1])}
-              className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
-              style={{ background: color }}>
-              {STEPS[STEPS.indexOf('dialogue') + 1] === 'speaking' ? '🎙️ Speaking Task →' : lt.startPractice}
-            </button>
-          </div>
+          <DialogueSection
+            dialogue={lesson.dialogue}
+            color={color}
+            onNext={() => setStep(STEPS[STEPS.indexOf('dialogue') + 1])}
+            nextLabel={STEPS[STEPS.indexOf('dialogue') + 1] === 'exercises' ? lt.startPractice : '→ Continue'}
+          />
         )}
 
         {/* ── SPEAKING ── */}
@@ -438,11 +522,16 @@ export default function LessonPage() {
                 ))}
               </ul>
             </div>
-            <button onClick={() => setStep(STEPS[STEPS.indexOf('speaking') + 1])}
-              className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
-              style={{ background: color }}>
-              {STEPS[STEPS.indexOf('speaking') + 1] === 'writing' ? '✍️ Writing Task →' : lt.startPractice}
-            </button>
+            {(() => {
+              const nextStep = STEPS[STEPS.indexOf('speaking') + 1];
+              return (
+                <button onClick={() => nextStep ? setStep(nextStep) : setCompleted(true)}
+                  className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
+                  style={{ background: color }}>
+                  {nextStep === 'writing' ? '✍️ Writing Task →' : nextStep ? '→ Continue' : lt.finish || 'Finish Lesson'}
+                </button>
+              );
+            })()}
           </div>
         )}
 
@@ -474,11 +563,24 @@ export default function LessonPage() {
                 ))}
               </div>
             )}
-            <button onClick={() => setStep('exercises')}
-              className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
-              style={{ background: color }}>
-              {lt.startPractice}
-            </button>
+            {(() => {
+              const writingIdx = STEPS.indexOf('writing');
+              const nextStep = STEPS[writingIdx + 1];
+              return (
+                <button
+                  onClick={() => {
+                    if (nextStep) { setStep(nextStep); }
+                    else {
+                      if (!state.completed?.[lesson.id]) { addXP(lesson.xp); markComplete(lesson.id); }
+                      setCompleted(true);
+                    }
+                  }}
+                  className="w-full py-4 rounded-2xl font-display font-bold text-white text-sm hover:opacity-90 transition-opacity shadow-lift"
+                  style={{ background: color }}>
+                  {nextStep ? '→ Continue' : lt.finish || '🎉 Complete Lesson'}
+                </button>
+              );
+            })()}
           </div>
         )}
 
