@@ -31,7 +31,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} ${jakarta.variable} font-body bg-ivory text-slate-800 antialiased`}>
+      <body className={`${outfit.variable} ${jakarta.variable} font-body antialiased`} style={{ background: 'var(--bg-page)', color: 'var(--text-body)' }}>
         <AppProvider>
           {children}
         </AppProvider>
