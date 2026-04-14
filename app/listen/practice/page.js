@@ -6,6 +6,7 @@ import {
   LISTENING_QUESTIONS, LEVELS, getQuestionsByLevel,
   shuffleQuestions, LEVEL_COLORS, LEVEL_BGS,
 } from '../../../lib/listeningPracticeData';
+import { cleanForSpeech } from '../../../lib/cleanForSpeech';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -21,7 +22,7 @@ function speakScript(text, rate = 0.88) {
   return new Promise((resolve) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) { resolve(); return; }
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance(cleanForSpeech(text));
     u.lang = 'fr-CA';
     u.rate = rate;
     const voices = window.speechSynthesis.getVoices();

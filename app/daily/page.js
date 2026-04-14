@@ -5,6 +5,7 @@ import Nav from '../../components/Nav';
 import { useApp } from '../../components/AppProvider';
 import { T } from '../../lib/i18n';
 import { MODULES, LESSONS } from '../../lib/data';
+import { cleanForSpeech } from '../../lib/cleanForSpeech';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getGreeting() {
@@ -34,7 +35,7 @@ function getStreakMilestone(streak) {
 
 function ttsSpeak(text) {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
-  const u = new SpeechSynthesisUtterance(text);
+  const u = new SpeechSynthesisUtterance(cleanForSpeech(text));
   u.lang = 'fr-CA'; u.rate = 0.85;
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(u);

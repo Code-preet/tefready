@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../../components/AppProvider';
+import { cleanForSpeech } from '../../lib/cleanForSpeech';
 
 // ─── FEED CARD DATA ────────────────────────────────────────────────────────────
 const FEED_CARDS = [
@@ -161,7 +162,7 @@ function SpeakingCard({ card, revealed, onReveal, cfg }) {
   const speak = (e) => {
     e.stopPropagation();
     if (speaking) { window.speechSynthesis?.cancel(); setSpeaking(false); return; }
-    const u = new SpeechSynthesisUtterance(card.prompt);
+    const u = new SpeechSynthesisUtterance(cleanForSpeech(card.prompt));
     u.lang = 'fr-CA'; u.rate = 0.85;
     u.onend = () => setSpeaking(false);
     u.onerror = () => setSpeaking(false);

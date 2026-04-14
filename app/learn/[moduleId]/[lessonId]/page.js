@@ -8,6 +8,7 @@ import { MODULES, LESSONS } from '../../../../lib/data';
 import { ENHANCED } from '../../../../lib/lessonsEnhanced';
 import { RECAP } from '../../../../lib/lessonsRecap';
 import { checkAnswer } from '../../../../lib/fuzzyMatch';
+import { cleanForSpeech } from '../../../../lib/cleanForSpeech';
 
 const MODULE_COLORS = { A1:'#7C3AED', A2:'#0891B2', B1:'#D97706', B2:'#2563EB', TEF:'#BE185D' };
 const MODULE_BGS    = { A1:'#F5F3FF', A2:'#E0F2FE', B1:'#FFFBEB', B2:'#EFF6FF', TEF:'#FDF2F8' };
@@ -16,7 +17,7 @@ const PASS_THRESHOLD = 70;
 function speakFr(text, rate = 0.82, onEnd = null) {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const u = new SpeechSynthesisUtterance(cleanForSpeech(text));
   u.lang = 'fr-CA'; u.rate = rate;
   // Prefer Canadian French voice, fall back to any French voice
   const voices = window.speechSynthesis.getVoices();

@@ -5,6 +5,7 @@ import Nav from '../../../../components/Nav';
 import { useApp } from '../../../../components/AppProvider';
 import { T } from '../../../../lib/i18n';
 import { speakingTasks } from '../../../../lib/speakingData';
+import { cleanForSpeech } from '../../../../lib/cleanForSpeech';
 
 function formatTime(sec) {
   const m = Math.floor(sec / 60);
@@ -81,7 +82,7 @@ function TaskView({ task, taskNum, totalTasks, onNext, onFinish, isLast }) {
 
   const speakPrompt = () => {
     if (ttsPlaying) { window.speechSynthesis?.cancel(); setTtsPlaying(false); return; }
-    const u = new SpeechSynthesisUtterance(task.prompt);
+    const u = new SpeechSynthesisUtterance(cleanForSpeech(task.prompt));
     u.lang = 'fr-CA'; u.rate = 0.82;
     u.onend = () => setTtsPlaying(false);
     u.onerror = () => setTtsPlaying(false);

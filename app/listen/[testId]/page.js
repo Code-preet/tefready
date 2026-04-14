@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { listeningTest } from '@/lib/listeningData'
 import Link from 'next/link'
+import { cleanForSpeech } from '@/lib/cleanForSpeech'
 
 const SPEED_OPTIONS = [
   { label: '0.6×', value: 0.6 },
@@ -47,7 +48,7 @@ export default function ListeningTestPage() {
     window.speechSynthesis.cancel()
     currentTextRef.current = text
     setAudioState('playing')
-    const utter = new SpeechSynthesisUtterance(text)
+    const utter = new SpeechSynthesisUtterance(cleanForSpeech(text))
     utter.lang = 'fr-CA'
     utter.rate = rate || 0.88
     utter.pitch = 1.0
