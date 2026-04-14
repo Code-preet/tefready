@@ -728,27 +728,66 @@ export default function SpeakingPracticePage() {
           {/* STOPPED — playback */}
           {recState === 'stopped' && audioUrl && (
             <>
+              {/* Saved confirmation row */}
               <div style={{
-                background: '#F0FDF4', borderRadius: '1rem', padding: '0.75rem 1rem',
-                border: '1.5px solid #BBF7D0', marginBottom: '1.1rem',
-                display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#15803D',
-                fontSize: '0.85rem', fontWeight: 700,
+                background: '#F0FDF4', borderRadius: '1rem', padding: '0.7rem 1rem',
+                border: '1.5px solid #BBF7D0', marginBottom: '1rem',
+                display: 'flex', alignItems: 'center', gap: '0.6rem',
               }}>
-                ✅ Recording saved! <span style={{ fontWeight: 400 }}>— {fmtTime(recTime)} recorded</span>
+                <span style={{ fontSize: '1.1rem' }}>✅</span>
+                <span style={{ color: '#15803D', fontSize: '0.85rem', fontWeight: 700 }}>
+                  Recording saved —
+                </span>
+                <span style={{ color: '#15803D', fontSize: '0.85rem', fontWeight: 400 }}>
+                  {fmtTime(recTime)} recorded
+                </span>
                 {xpAwarded && (
                   <span style={{
                     marginLeft: 'auto', background: '#FFF7ED', color: '#C2410C',
                     borderRadius: '1rem', padding: '0.15rem 0.6rem', fontSize: '0.75rem',
-                    fontWeight: 700, border: '1px solid #FED7AA',
+                    fontWeight: 700, border: '1px solid #FED7AA', whiteSpace: 'nowrap',
                   }}>+{task?.xp} XP</span>
                 )}
+              </div>
+
+              {/* Encouragement card */}
+              <div style={{
+                background: 'linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 100%)',
+                border: '1.5px solid #FDE68A',
+                borderRadius: '1rem',
+                padding: '1rem 1.1rem',
+                marginBottom: '1rem',
+              }}>
+                <p style={{ margin: '0 0 0.3rem', fontWeight: 800, color: '#92400E', fontSize: '0.92rem' }}>
+                  👏 Good attempt!
+                </p>
+                <p style={{ margin: '0 0 0.75rem', color: '#78350F', fontSize: '0.85rem', lineHeight: 1.6 }}>
+                  Listen back carefully — notice your rhythm, word stress, and any sounds that felt uncertain.
+                  Pronunciation improves most through <strong>hearing yourself</strong> and repeating.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                  {[
+                    'Listen to your recording below',
+                    'Open the Sample Answer and compare pronunciation',
+                    'Re-record and try to sound closer to the sample',
+                  ].map((step, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+                      <span style={{
+                        background: '#D97706', color: 'white', borderRadius: '50%',
+                        width: '20px', height: '20px', fontSize: '0.68rem', fontWeight: 800,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px',
+                      }}>{i + 1}</span>
+                      <span style={{ color: '#78350F', fontSize: '0.82rem', lineHeight: 1.5 }}>{step}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Playback controls */}
               <AudioPlayer src={audioUrl} />
 
               {/* Action buttons */}
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button
                   onClick={resetRecording}
                   style={{
@@ -761,15 +800,16 @@ export default function SpeakingPracticePage() {
                   🔄 Re-record
                 </button>
                 <button
-                  onClick={() => setShowSample(true)}
+                  onClick={() => { setShowSample(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   style={{
-                    background: bg, color: color, border: `1.5px solid ${color}44`,
+                    background: color, color: 'white', border: 'none',
                     borderRadius: '0.75rem', padding: '0.6rem 1.2rem',
                     fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: '0.4rem',
+                    boxShadow: `0 2px 8px ${color}44`,
                   }}
                 >
-                  👁 Compare Sample
+                  👁 Compare Sample Answer
                 </button>
               </div>
             </>
@@ -785,7 +825,10 @@ export default function SpeakingPracticePage() {
             <span style={{ fontSize: '1.5rem' }}>🎯</span>
             <div style={{ flex: 1 }}>
               <p style={{ margin: 0, fontWeight: 700, color: '#0A2540', fontSize: '0.88rem' }}>
-                Great work! Ready for another one?
+                Satisfied with your recording?
+              </p>
+              <p style={{ margin: '0.1rem 0 0', color: '#64748B', fontSize: '0.78rem' }}>
+                Try another task or re-record to keep improving.
               </p>
             </div>
             <button
