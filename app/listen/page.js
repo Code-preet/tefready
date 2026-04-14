@@ -90,6 +90,48 @@ export default function ListenPage() {
           </ul>
         </div>
 
+        {/* Practice Listening Card */}
+        <div style={{
+          background: 'linear-gradient(135deg, #0891B2 0%, #0369A1 100%)',
+          borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.25rem',
+          color: 'white', border: '1.5px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 4px 18px rgba(3,105,161,0.35)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+            <div style={{ fontSize: '2.2rem', lineHeight: 1 }}>🎯</div>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.15rem', fontWeight: 800, margin: '0 0 0.3rem' }}>
+                Listening Practice
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.88rem', margin: '0 0 0.9rem', lineHeight: 1.5 }}>
+                Short MCQ sessions with TTS audio. Choose your level, set a timer, and train your ear for the real exam.
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                {['A1 → B2 levels', 'Replay control', 'FR + EN transcript', 'Timed mode'].map(tag => (
+                  <span key={tag} style={{
+                    background: 'rgba(255,255,255,0.18)', borderRadius: '1rem',
+                    padding: '0.2rem 0.65rem', fontSize: '0.75rem', fontWeight: 600
+                  }}>{tag}</span>
+                ))}
+              </div>
+              <Link href="/listen/practice" style={{
+                display: 'inline-block', background: 'white', color: '#0369A1',
+                borderRadius: '0.75rem', padding: '0.6rem 1.4rem',
+                textDecoration: 'none', fontWeight: 800, fontSize: '0.95rem',
+                fontFamily: "'Outfit', sans-serif", boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+              }}>
+                Start Practice →
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '1.5rem 0 1rem' }}>
+          <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
+          <span style={{ color: '#94A3B8', fontSize: '0.8rem', fontWeight: 600 }}>OR TAKE THE FULL EXAM</span>
+          <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
+        </div>
+
         <Link href="/listen/tef-listening-01" style={{
           display: 'block', background: '#0A2540', color: 'white',
           borderRadius: '1rem', padding: '1.2rem', textAlign: 'center',
