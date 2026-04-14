@@ -13,15 +13,28 @@ const MODULE_COLORS = { A1:'#7C3AED', A2:'#0891B2', B1:'#D97706', B2:'#2563EB', 
 const MODULE_BGS    = { A1:'#F5F3FF', A2:'#E0F2FE', B1:'#FFFBEB', B2:'#EFF6FF', TEF:'#FDF2F8' };
 const PASS_THRESHOLD = 70;
 
-function speakFr(text, rate = 0.82) {
+function speakFr(text, rate = 0.82, onEnd = null) {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'fr-CA'; u.rate = rate;
+  // Prefer Canadian French voice, fall back to any French voice
   const voices = window.speechSynthesis.getVoices();
-  const fr = voices.find(v => v.lang.startsWith('fr')) || null;
+  const fr = voices.find(v => v.lang === 'fr-CA') || voices.find(v => v.lang.startsWith('fr')) || null;
   if (fr) u.voice = fr;
+  if (onEnd) u.onend = onEnd;
   window.speechSynthesis.speak(u);
+}
+
+function SpeakerIcon({ active, size = 15 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{display:'block'}}>
+      {active
+        ? <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        : <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+      }
+    </svg>
+  );
 }
 
 function isLessonUnlocked(moduleId, lessonId, lessonScores) {
@@ -490,31 +503,58 @@ function SituationStep({ data, color, moduleBg }) {
 }
 
 function DialogueStep({ lines, color }) {
-  const [speakingIdx, setSpeakingIdx] = useState(null);
+  const [playingIdx, setPlayingIdx] = useState(null);
   const [showAll, setShowAll] = useState(false);
+
+  function playLine(line, i) {
+    setPlayingIdx(i);
+    speakFr(line.fr, 0.82, () => setPlayingIdx(null));
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <div><h2 className="font-display font-bold text-lg text-navy">The Dialogue</h2><p className="text-xs text-slate-400">Read each line out loud</p></div>
+        <div><h2 className="font-display font-bold text-lg text-navy">The Dialogue</h2><p className="text-xs text-slate-400">Tap 🔉 to hear each line</p></div>
         <button onClick={()=>setShowAll(s=>!s)} className="text-xs font-semibold rounded-xl px-3 py-1.5" style={{background:color+'15',color}}>{showAll?'Hide EN':'Show EN'}</button>
       </div>
       <div className="space-y-3">
         {lines.map((line, i) => {
-          const isYou=line.speaker==='Vous';
+          const isYou    = line.speaker === 'Vous';
+          const isActive = playingIdx === i;
           return (
             <div key={i} className={`flex gap-3 ${isYou?'flex-row-reverse':''}`}>
-              <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{background:isYou?color:'#F1F5F9',color:isYou?'white':'#64748B'}}>{isYou?'👤':line.speaker[0]}</div>
+              {/* Avatar */}
+              <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+                style={{background:isYou?color:'#F1F5F9',color:isYou?'white':'#64748B'}}>
+                {isYou?'👤':line.speaker[0]}
+              </div>
+
               <div className={`max-w-[80%] ${isYou?'items-end':'items-start'} flex flex-col gap-0.5`}>
                 <span className="text-[10px] font-semibold text-slate-400 px-1">{line.speaker}</span>
-                <div className="rounded-2xl px-4 py-3" style={{background:isYou?color:'white',color:isYou?'white':'#1E293B',border:isYou?'none':'1.5px solid #E2E8F0'}}>
+
+                {/* Speech bubble — highlighted when active */}
+                <div className="rounded-2xl px-4 py-3 transition-all"
+                  style={{
+                    background: isYou ? (isActive ? '#5B21B6' : color) : (isActive ? color+'12' : 'white'),
+                    color: isYou ? 'white' : (isActive ? color : '#1E293B'),
+                    border: isYou ? 'none' : `1.5px solid ${isActive ? color : '#E2E8F0'}`,
+                    boxShadow: isActive ? `0 0 0 3px ${color}28` : 'none',
+                  }}>
                   <p className="text-sm font-semibold">{line.fr}</p>
-                  {showAll&&<p className="text-xs mt-1.5 opacity-75 italic">{line.en}</p>}
+                  {showAll && <p className="text-xs mt-1.5 opacity-75 italic">{line.en}</p>}
                 </div>
-                {!showAll&&<p className="text-[11px] text-slate-400 italic px-1">{line.en}</p>}
-                <button onClick={()=>{speakFr(line.fr);setSpeakingIdx(i);setTimeout(()=>setSpeakingIdx(null),2200);}}
-                  className="text-[10px] font-semibold rounded-full px-2 py-0.5 mt-0.5 transition-all"
-                  style={{background:speakingIdx===i?color:color+'18',color:speakingIdx===i?'white':color}}>
-                  {speakingIdx===i?'🔊 Playing...':'▶ Listen'}
+
+                {/* English translation below bubble */}
+                {!showAll && <p className="text-[11px] text-slate-400 italic px-1">{line.en}</p>}
+
+                {/* Speaker button */}
+                <button
+                  onClick={() => playLine(line, i)}
+                  aria-label={`Play: ${line.fr}`}
+                  className="flex items-center gap-1.5 text-[10px] font-semibold rounded-full px-2.5 py-1 mt-0.5 transition-all"
+                  style={{background:isActive?color:color+'18',color:isActive?'white':color}}>
+                  <SpeakerIcon active={isActive} size={11}/>
+                  {isActive ? 'Playing…' : 'Listen'}
                 </button>
               </div>
             </div>
@@ -622,28 +662,66 @@ function GrammarStep({ grammar, grammarExtra, color }) {
 }
 
 function VocabStep({ vocab, enhanced, color }) {
-  const [speakingFr, setSpeakingFr] = useState(null);
+  // playing: { idx, type: 'word' | 'example' } | null
+  const [playing, setPlaying] = useState(null);
+
+  function playWord(item, i) {
+    setPlaying({ idx: i, type: 'word' });
+    speakFr(item.fr, 0.78, () => setPlaying(null));
+  }
+
+  function playExample(item, i) {
+    setPlaying({ idx: i, type: 'example' });
+    speakFr(item.example, 0.82, () => setPlaying(null));
+  }
+
   return (
     <div>
       <h2 className="font-display font-bold text-lg text-navy mb-1">Vocabulary</h2>
-      <p className="text-xs text-slate-400 mb-4">{vocab.length} words — tap ▶ to hear pronunciation</p>
+      <p className="text-xs text-slate-400 mb-4">{vocab.length} words — tap 🔉 to hear pronunciation</p>
       <div className="space-y-2.5">
         {vocab.map((item, i) => {
-          const extra=enhanced?.vocabExtra?.[item.fr];
+          const extra = enhanced?.vocabExtra?.[item.fr];
+          const wordActive    = playing?.idx === i && playing?.type === 'word';
+          const exampleActive = playing?.idx === i && playing?.type === 'example';
           return (
-            <div key={i} className="card overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3" style={{borderBottom:`1px solid ${color}12`}}>
-                <button onClick={()=>{speakFr(item.fr);setSpeakingFr(i);setTimeout(()=>setSpeakingFr(null),1600);}}
+            <div key={i} className="card overflow-hidden transition-all"
+              style={{border:`1.5px solid ${(wordActive||exampleActive)?color:'transparent'}`,boxShadow:(wordActive||exampleActive)?`0 0 0 3px ${color}18`:'none'}}>
+
+              {/* Word row */}
+              <div className="flex items-center gap-3 px-4 py-3"
+                style={{borderBottom:`1px solid ${color}12`,background:wordActive?color+'0C':'transparent',transition:'background 0.2s'}}>
+                <button
+                  onClick={() => playWord(item, i)}
+                  aria-label={`Pronounce ${item.fr}`}
                   className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
-                  style={{background:speakingFr===i?color:color+'18',color:speakingFr===i?'white':color}}>
-                  {speakingFr===i?'🔊':'▶'}
+                  style={{background:wordActive?color:color+'18',color:wordActive?'white':color}}>
+                  <SpeakerIcon active={wordActive} size={15}/>
                 </button>
-                <div><p className="font-display font-bold text-navy text-base">{item.fr}</p><p className="text-xs text-slate-400 italic">{item.en}</p></div>
+                <div className="flex-1">
+                  <p className="font-display font-bold text-base transition-all"
+                    style={{color:wordActive?color:'#1E293B'}}>{item.fr}</p>
+                  <p className="text-xs text-slate-400 italic">{item.en}</p>
+                </div>
               </div>
-              <div className="px-4 py-2.5" style={{background:color+'05'}}>
-                <p className="text-sm text-navy font-body">{item.example}</p>
-                {extra?.exampleEn&&<p className="text-xs text-slate-400 italic mt-0.5">{extra.exampleEn}</p>}
+
+              {/* Example row */}
+              <div className="px-4 py-2.5 flex items-start gap-2"
+                style={{background:exampleActive?color+'10':color+'05',transition:'background 0.2s'}}>
+                <button
+                  onClick={() => playExample(item, i)}
+                  aria-label="Play example sentence"
+                  className="mt-0.5 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                  style={{background:exampleActive?color:color+'20',color:exampleActive?'white':color}}>
+                  <SpeakerIcon active={exampleActive} size={11}/>
+                </button>
+                <div className="flex-1">
+                  <p className="text-sm font-body transition-all"
+                    style={{color:exampleActive?color:'#1E293B',fontWeight:exampleActive?600:400}}>{item.example}</p>
+                  {extra?.exampleEn && <p className="text-xs text-slate-400 italic mt-0.5">{extra.exampleEn}</p>}
+                </div>
               </div>
+
             </div>
           );
         })}
