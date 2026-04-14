@@ -78,6 +78,47 @@ export default function SpeakPage() {
           ))}
         </div>
 
+        {/* Daily Practice Card */}
+        <div style={{
+          background: 'linear-gradient(135deg, #7C3AED 0%, #BE185D 100%)',
+          borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem',
+          color: 'white', boxShadow: '0 4px 18px rgba(124,58,237,0.35)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+            <div style={{ fontSize: '2rem', lineHeight: 1 }}>🎙️</div>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.1rem', fontWeight: 800, margin: '0 0 0.3rem' }}>
+                Speaking Practice
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: '0.88rem', margin: '0 0 0.85rem', lineHeight: 1.5 }}>
+                Short daily drills across A1–B2. Record your voice, play it back, and compare with a sample answer.
+              </p>
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.9rem' }}>
+                {['16 tasks', 'A1 → B2', 'Mic + playback', 'Sample answers'].map(tag => (
+                  <span key={tag} style={{
+                    background: 'rgba(255,255,255,0.18)', borderRadius: '1rem',
+                    padding: '0.18rem 0.6rem', fontSize: '0.72rem', fontWeight: 600,
+                  }}>{tag}</span>
+                ))}
+              </div>
+              <Link href="/speak/practice" style={{
+                display: 'inline-block', background: 'white', color: '#7C3AED',
+                borderRadius: '0.75rem', padding: '0.55rem 1.3rem',
+                textDecoration: 'none', fontWeight: 800, fontSize: '0.9rem',
+                fontFamily: "'Outfit', sans-serif",
+              }}>
+                Start Practice →
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '0 0 1.25rem' }}>
+          <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
+          <span style={{ color: '#94A3B8', fontSize: '0.8rem', fontWeight: 600 }}>OR TAKE THE FULL TEF EXAM</span>
+          <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
+        </div>
+
         <h2 style={{ color: '#0A2540', fontFamily: "'Outfit', sans-serif", fontSize: '1.2rem', margin: '0 0 1rem', fontWeight: 700 }}>
           Choose a Speaking Task
         </h2>

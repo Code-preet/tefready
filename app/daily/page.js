@@ -446,7 +446,7 @@ export default function DailyPage() {
             {[
               { icon:'⚡', label:'Quick Feed',    sub:'Swipe vocab cards',   href:'/quick',     bg:'linear-gradient(135deg,#1D4ED8,#7C3AED)', text:'white' },
               { icon:'🎧', label:'Listening',     sub:'MCQ listening drills', href:'/listen/practice', bg:'linear-gradient(135deg,#0369A1,#0891B2)', text:'white' },
-              { icon:'🎤', label:'Speaking',      sub:'Oral exam prep',      href:'/tef/exam/speaking', bg:'linear-gradient(135deg,#B45309,#D97706)', text:'white' },
+              { icon:'🎤', label:'Speaking',      sub:'Record & play back',   href:'/speak/practice',    bg:'linear-gradient(135deg,#B45309,#D97706)', text:'white' },
               { icon:'🏆', label:'TEF Exam',      sub:'Full simulator',      href:'/tef/exam',  bg:'linear-gradient(135deg,#1E3A8A,#1D4ED8)',  text:'white' },
             ].map(item => (
               <Link key={item.href} href={item.href}
