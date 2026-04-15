@@ -235,12 +235,38 @@ export default function ToolsPage() {
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem 0' }}>
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h1 style={{ color: '#0A2540', fontFamily: "'Outfit', sans-serif", fontSize: '2rem', fontWeight: 800, margin: '0 0 0.5rem' }}>
             🛠️ French Learning Tools
           </h1>
-          <p style={{ color: '#718096', margin: 0 }}>Interactive tools to master French numbers and time</p>
+          <p style={{ color: '#718096', margin: 0 }}>Interactive tools to master French numbers, time, and pronunciation</p>
         </div>
+
+        {/* PRONUNCIATION HELPER */}
+        <a href="/tools/pronunciation" style={{ textDecoration: 'none', display: 'block', marginBottom: '2rem' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #7C3AED 100%)',
+            borderRadius: '1.5rem', padding: '1.5rem', color: 'white',
+            boxShadow: '0 6px 24px rgba(37,99,235,0.35)',
+            display: 'flex', alignItems: 'center', gap: '1.25rem',
+          }}>
+            <div style={{ fontSize: '2.5rem', flexShrink: 0 }}>🗣️</div>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.3rem', color: 'white' }}>
+                Pronunciation Helper
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,0.78)', margin: '0 0 0.75rem', fontSize: '0.88rem', lineHeight: 1.5 }}>
+                Type any French word — get phonetic guide, syllable breakdown, mouth tips, and audio playback.
+              </p>
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                {['Phonetics', 'Audio', 'Mouth tips', 'Syllables'].map(tag => (
+                  <span key={tag} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '1rem', padding: '0.15rem 0.6rem', fontSize: '0.72rem', fontWeight: 600 }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.5rem', flexShrink: 0 }}>→</div>
+          </div>
+        </a>
 
         {/* NUMBER CONVERTER */}
         <div style={{ background: 'white', borderRadius: '1.5rem', padding: '2rem', marginBottom: '2rem', border: '1.5px solid #E8F0FB', boxShadow: '0 4px 20px rgba(10,37,64,0.06)' }}>
