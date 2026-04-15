@@ -214,7 +214,11 @@ function QuestionScreen({ question, qIdx, total, timerOn, onAnswer, onSkip }) {
   const [submitted, setSubmitted]   = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [timeLeft, setTimeLeft]     = useState(TIMER_SECONDS);
+  const [rate, setRate]             = useState(1);
   const timerRef = useRef(null);
+
+  // Stop TTS when this question unmounts (navigation away or question change)
+  useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
   const color = LEVEL_COLORS[question.level] || '#2563EB';
   const bg    = LEVEL_BGS[question.level]    || '#EFF6FF';
@@ -240,7 +244,7 @@ function QuestionScreen({ question, qIdx, total, timerOn, onAnswer, onSkip }) {
       setReplaysLeft(r => r - 1);
     }
     setPlaying(true);
-    await speakScript(question.script);
+    await speakScript(question.script, rate);
     setPlaying(false);
   }, [playing, hasListened, replaysLeft, question.script]);
 
@@ -345,6 +349,24 @@ function QuestionScreen({ question, qIdx, total, timerOn, onAnswer, onSkip }) {
             {Array.from({ length: MAX_REPLAYS }).map((_, i) => (
               <div key={i} className="w-2 h-2 rounded-full transition-all"
                 style={{ background: i < replaysLeft ? color : '#E2E8F0' }} />
+            ))}
+          </div>
+
+          {/* Speed selector */}
+          <div className="flex items-center gap-1.5 mt-3 pt-3" style={{ borderTop: '1px solid #F1F5F9' }}>
+            <span className="text-[10px] font-bold text-slate-400">Speed:</span>
+            {[0.75, 1, 1.25].map(r => (
+              <button key={r} onClick={() => setRate(r)}
+                className="rounded-lg text-[0.7rem] font-bold transition-all"
+                style={{
+                  padding: '0.15rem 0.5rem',
+                  background: rate === r ? color : color + '14',
+                  color: rate === r ? 'white' : color,
+                  border: `1.5px solid ${rate === r ? color : color + '30'}`,
+                  cursor: 'pointer',
+                }}>
+                {r === 1 ? '1×' : `${r}×`}
+              </button>
             ))}
           </div>
         </div>

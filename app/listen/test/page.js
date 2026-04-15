@@ -190,6 +190,9 @@ export default function ListeningTestPage() {
   const [selected,  setSelected]  = useState(null);  // option index chosen, or null
   const [submitted, setSubmitted] = useState(false);  // locked in
 
+  // ── Speed control
+  const [rate, setRate] = useState(1);
+
   // ── Results
   const [answers, setAnswers] = useState([]); // array of chosen indices (null = timed out)
 
@@ -197,6 +200,9 @@ export default function ListeningTestPage() {
   const advanceRef = useRef(null);
 
   const q = LISTENING_QUESTIONS[qIdx];
+
+  // ── Unmount cleanup — stop any TTS when leaving the page
+  useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
   // ── Reset per-question state when qIdx changes
   useEffect(() => {
@@ -265,7 +271,7 @@ export default function ListeningTestPage() {
     if (playsLeft <= 0 || isPlaying || submitted) return;
     setPlaysLeft(p => p - 1);
     setIsPlaying(true);
-    await speakScript(q.script);
+    await speakScript(q.script, rate);
     setIsPlaying(false);
   }, [playsLeft, isPlaying, submitted, q]);
 
@@ -465,6 +471,23 @@ export default function ListeningTestPage() {
               <style>{`@keyframes waveBar { from { transform: scaleY(0.2); } to { transform: scaleY(1); } }`}</style>
             </div>
           )}
+
+          {/* Speed selector */}
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '0.65rem', paddingTop: '0.65rem', borderTop: '1px solid #1E293B' }}>
+            <span style={{ color: '#475569', fontSize: '0.7rem', fontWeight: 600, marginRight: '2px' }}>Speed:</span>
+            {[0.75, 1, 1.25].map(r => (
+              <button key={r} onClick={() => setRate(r)}
+                style={{
+                  padding: '0.18rem 0.55rem', borderRadius: '0.5rem', border: 'none',
+                  background: rate === r ? '#2563EB' : '#1E293B',
+                  color: rate === r ? 'white' : '#64748B',
+                  fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}>
+                {r === 1 ? '1×' : `${r}×`}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Timed-out banner */}
