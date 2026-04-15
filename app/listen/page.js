@@ -90,6 +90,41 @@ export default function ListenPage() {
           </ul>
         </div>
 
+        {/* TEF Listening Test Card */}
+        <div style={{
+          background: 'linear-gradient(135deg, #0A1628 0%, #1E3A8A 100%)',
+          borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1rem',
+          color: 'white', boxShadow: '0 4px 18px rgba(10,22,40,0.45)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+            <div style={{ fontSize: '2.2rem', lineHeight: 1 }}>🎧</div>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.15rem', fontWeight: 800, margin: '0 0 0.3rem' }}>
+                TEF Listening Test
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.88rem', margin: '0 0 0.85rem', lineHeight: 1.5 }}>
+                10 questions, A1–B2. Max 2 replays per question, countdown timer, auto-advance. Full transcript in results.
+              </p>
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.9rem' }}>
+                {['10 questions', '2 replays max', 'Timed', 'Results + transcript'].map(tag => (
+                  <span key={tag} style={{
+                    background: 'rgba(255,255,255,0.12)', borderRadius: '1rem',
+                    padding: '0.18rem 0.6rem', fontSize: '0.72rem', fontWeight: 600,
+                  }}>{tag}</span>
+                ))}
+              </div>
+              <Link href="/listen/test" style={{
+                display: 'inline-block', background: 'white', color: '#1E3A8A',
+                borderRadius: '0.75rem', padding: '0.55rem 1.3rem',
+                textDecoration: 'none', fontWeight: 800, fontSize: '0.9rem',
+                fontFamily: "'Outfit', sans-serif",
+              }}>
+                Start Test →
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Practice Listening Card */}
         <div style={{
           background: 'linear-gradient(135deg, #0891B2 0%, #0369A1 100%)',
